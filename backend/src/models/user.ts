@@ -16,7 +16,7 @@ export const userSchema = pgTable('users', {
   picture: varchar("picture", { length: 255 }).notNull(),
   status: userStatusEnum("status").notNull(),
   role: userRoleEnum("role").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull().$onUpdate(()=>new Date()),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull().$onUpdate(()=>new Date()),
 });
         
