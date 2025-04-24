@@ -1,10 +1,12 @@
 import express from 'express';
+import {login,logout,register,session} from '../controllers/authController.ts';
+import { upload } from '../middlewares/index.ts';
 
 const router = express.Router();
 
-router.post('/login', (req, res) => { });
-router.post('/register', (req, res) => { });
-router.post('/logout', (req, res) => { });
-router.get('/session', (req, res) => { });
+router.post('/register', upload.single('picture') ,register);
+router.post('/login', login);
+router.post('/logout', logout);
+router.get('/session', session);
 
 export default router;

@@ -14,16 +14,25 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
+import { registerUser } from "@/api/mutations/registerUser"
 
 const schema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters long"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters long"),
-  username: z.string().min(3, "Username must be at least 3 characters long"),
-  email: z.string().email("Invalid email format"),
+  firstName: z.string()
+    .min(2, "First name must be at least 2 characters long")
+    .max(20, "First name must not exceed 20 characters"),
+  lastName: z.string()
+    .min(2, "Last name must be at least 2 characters long")
+    .max(20, "Last name must not exceed 20 characters"),
+  username: z.string().min(6, "Username must be at least 6 characters long")
+    .max(30, "Username must not exceed 30 characters")
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+  email: z.string().email("Invalid email format")
+    .min(6, "Email must be at least 6 characters long")
+    .max(254, "Email must not exceed 254 characters"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")
-    .max(32, "Password must not exceed 32 characters")
+    .max(64, "Password must not exceed 64 characters")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/\d/, "Password must contain at least one number")
@@ -31,7 +40,8 @@ const schema = z.object({
   mobileNo: z
     .string()
     .regex(/^\d{10,15}$/, "Mobile number must be 10-15 digits long"),
-  address: z.string().min(5, "Address must be at least 5 characters long"),
+  address: z.string().min(5, "Address must be at least 5 characters long")
+    .max(255, "Address must not exceed 255 characters"),
   picture: z
     .any().refine((file) => file instanceof FileList, "Picture must be a valid file")
 });
@@ -42,7 +52,7 @@ export default function RegistrationForm() {
   const { toast } = useToast()
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, formState: { errors } } = useForm<Schema>({
+  const { register, handleSubmit, setError, formState: { errors } } = useForm<Schema>({
     resolver: zodResolver(schema)
   })
   const navigate = useNavigate()
@@ -60,7 +70,6 @@ export default function RegistrationForm() {
   const onSubmit: SubmitHandler<Schema> = async (data) => {
     const formData = new FormData()
     if (data.picture && data.picture[0]) {
-      console.log(data.picture)
       formData.append("picture", data.picture[0]);
     }
     formData.append("firstName", data.firstName);
@@ -71,31 +80,35 @@ export default function RegistrationForm() {
     formData.append("mobileNo", data.mobileNo);
     formData.append("address", data.address);
     setLoading(true)
-    const response = await axios.post("http://localhost:3000/users/registerUser", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const result = await registerUser(formData)
+    console.log(result)
     setLoading(false)
-    if (response.data.success) {
+    if (result.status === 201) {
       toast({
         title: "Success",
-        description: response.data.message,
+        description: "Custom User registered successfully",
         duration: 2000,
         className: "bg-green-600 text-white",
       })
       navigate("/signin");
     }
-    else {
+    else if (result.status === 422) {
+      Object.entries(result.error).forEach(([key, value]) => {
+        setError(key as keyof Schema, {
+          type: "server",
+          message: Array.isArray(value) ? value[0] : value,
+        })
+      })
+    }
+    else if (result.status === 400 || result.status === 409 || result.status === 500 || result.status === 100) {
       toast({
         title: "Error",
-        description: response?.data?.errors?.[0]?.message || response.data.message,
+        description: result.error,
         duration: 3000,
         className: "bg-red-500 text-white",
       })
     }
   }
-
   return (
     <div className="">
       <Card className="max-w-2xl mx-auto">
