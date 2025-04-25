@@ -7,6 +7,7 @@ import userLoginZodSchema from "../config/zodSchemas/userLoginZodSchema.ts";
 import userRegistrationZodSchema from "../config/zodSchemas/userRegistrationZodSchema.ts";
 import { z } from "zod";
 import fs from 'fs/promises';
+import jwt from "jsonwebtoken";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -74,49 +75,49 @@ export async function login(req: Request, res: Response) {
     userLoginZodSchema.parse(req.body); // Validate request body against the schema
     const { email, password } = req.body;
     if (!email || !password) {
-      throw new Error("Email and password are required");
+      throw new Error("Email and password are required", { cause: 400 });
     }
     const user = await db.select().from(userSchema).where(eq(userSchema.email, email));
     if (!user || user.length === 0) {
-      throw new Error("User not found");
+      throw new Error("User not found", { cause: 404 });
     }
     const isPasswordValid = await bcrypt.compare(password, user[0].password);
     if (!isPasswordValid) {
-      throw new Error("Invalid password");
+      throw new Error("Invalid password", { cause: 401 });
     }
     const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const tokenData = {
+      id: user[0].id,
+    }
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT secret is not defined", { cause: 500 });
+    }
+    const token =  jwt.sign(tokenData, process.env.JWT_SECRET!);
 
-    res.cookie('test', "authIsEasy", {
+    res.cookie('auth', token, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
-    res.json({ success: true, message: "User logged in successfully!", data: { ...user[0], picture: user[0].picture ? `${baseUrl}/${user[0].picture}` : null, } });
+
+// data: { ...user[0], picture: user[0].picture ? `${baseUrl}/${user[0].picture}` : null, }
+
+    res.status(200).json({ error:null });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      const formattedErrors = error.errors.map(e => {
-        // Customize the "required" error
-        if (e.code === 'invalid_type' && e.message === 'Required') {
-          return {
-            path: e.path.join('.'),
-            message: `${e.path.join('.')} is required`,
-          };
-        }
-
-        return {
-          path: e.path.join('.'),
-          message: e.message,
-        };
-      });
-
-      res.json({
-        success: false,
-        errors: formattedErrors,
+     res.status(422).json({
+        error: error.flatten().fieldErrors
       });
     }
     else {
-      res.json({ success: false, message: error.message || "Internal server error" });
+      if (error?.message) {
+        res.status(error?.cause).json({ error: error?.message });
+      }
+      else {
+        res.status(500).json({ error: "Internal server error" });
+      }
     }
   }
 
