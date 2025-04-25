@@ -2,7 +2,6 @@ import { useState } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import axios from "axios"
 import { useNavigate } from "react-router"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -16,14 +15,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useDispatch } from "react-redux"
-import { setUserData } from "@/store/features/user/userSlice"
 import { useToast } from "@/hooks/use-toast"
+import { loginUser } from "@/api/queries/loginUser"
 
 const schema = z.object({
   email: z.string()
-  .min(6, "Email must be at least 6 characters long")
-  .max(254, "Email must not exceed 254 characters")
-  .email("Invalid email format"),
+    .min(6, "Email must be at least 6 characters long")
+    .max(254, "Email must not exceed 254 characters")
+    .email("Invalid email format"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")
@@ -44,7 +43,7 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
   const dispatch = useDispatch()
-  const { register, handleSubmit, formState: { errors } } = useForm<Schema>({
+  const { register, handleSubmit, setError, formState: { errors } } = useForm<Schema>({
     resolver: zodResolver(schema)
   })
   const navigate = useNavigate()
@@ -54,27 +53,29 @@ export function LoginForm({
     formData.append("email", data.email);
     formData.append("password", data.password);
     setIsLoading(true)
-    const response = await axios.post("http://localhost:3000/users/login", formData, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const result = await loginUser(formData);
     setIsLoading(false)
-    if(response.data.success) {
-      dispatch(setUserData(response.data.data));
+    if (result.status === 200) {
       toast({
         title: "Success",
-        description: response.data.message,
+        description: "Login successful, redirecting...",
         duration: 2000,
         className: "bg-green-600 text-white",
       })
       navigate("/user");
     }
+    else if (result.status === 422) {
+      Object.entries(result.error).forEach(([key, value]) => {
+        setError(key as keyof Schema, {
+          type: "server",
+          message: Array.isArray(value) ? value[0] : value,
+        })
+      })
+    }
     else {
       toast({
         title: "Error",
-        description: response?.data?.errors?.[0]?.message || response.data.message,
+        description: result?.error,
         duration: 3000,
         className: "bg-red-500 text-white",
       })
