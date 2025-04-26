@@ -84,7 +84,7 @@ export const postSchema = pgTable('posts', {
     exchangeType: exchangeTypeEnum("exchange_type").notNull(),
     exchangeCondition: varchar("exchange_condition", { length: 512 }).notNull(),
     isPublic: boolean("is_public").default(true).notNull(),
-    status: bookStatusEnum("status").notNull(), 
+    status: bookStatusEnum("status").default("available").notNull(), 
     price: numeric("price",{precision:10,scale:2}).notNull(),
     currency: currencyEnum("currency").notNull(),
     isNegotiable: boolean("is_negotiable").default(false).notNull(),
@@ -104,3 +104,6 @@ export const postSchema = pgTable('posts', {
     index("post_status_index").on(post.status),
 ]
 ));
+
+export type Post = typeof postSchema.$inferSelect;
+export type InsertPost = typeof postSchema.$inferInsert;

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.ts'
 import adminRoutes from './routes/adminRoutes.ts'
 import authRoutes from './routes/authRoutes.ts'
+import postRoutes from './routes/postRoutes.ts';
 
 dotenv.config()
 
@@ -24,6 +25,7 @@ app.use(express.json())
 app.use('/users', userRoutes )
 app.use('/admin', adminRoutes )
 app.use('/auth', authRoutes )
+app.use('/posts', postRoutes )
 
 app.listen(port, () => {
   console.log(`BookBarter Backend listening on port ${port}`)

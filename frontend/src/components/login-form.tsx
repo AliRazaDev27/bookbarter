@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useDispatch } from "react-redux"
 import { useToast } from "@/hooks/use-toast"
 import { loginUser } from "@/api/queries/loginUser"
 
@@ -42,7 +41,6 @@ export function LoginForm({
 
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
-  const dispatch = useDispatch()
   const { register, handleSubmit, setError, formState: { errors } } = useForm<Schema>({
     resolver: zodResolver(schema)
   })
