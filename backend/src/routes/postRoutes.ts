@@ -1,8 +1,9 @@
 import express from 'express';
-import { createPost } from '../controllers/postController.ts';
+import { createPost, getPosts } from '../controllers/postController.ts';
 import { upload } from '../middlewares/index.ts';
 const router = express.Router();
 
-router.post('/create', upload.array('images') ,createPost);
+router.post('/', upload.array('images') ,createPost);
+router.get('/', getPosts);
 
 export default router;

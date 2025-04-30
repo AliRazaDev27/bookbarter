@@ -96,3 +96,19 @@ async function cleanUpFiles(files: Express.Multer.File | Express.Multer.File[]) 
     }
   }
 }
+
+export async function getPosts(req: Request, res: Response) {
+  try{
+    const posts = await db.select().from(postSchema).limit(10)
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const postsWithFullPictureUrl = posts.map(post => ({
+      ...post,
+      images: post.images.map((image) => `${baseUrl}/${image}`), // Assuming images are stored in `/uploads/`
+    }));
+    console.log(postsWithFullPictureUrl)
+    res.status(200).json({error: null, data: postsWithFullPictureUrl})
+  }
+  catch(error:any){
+    res.status(500).json({error: error?.message || "Internal server error"})
+  }
+}

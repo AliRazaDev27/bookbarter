@@ -11,6 +11,7 @@ import { Provider } from 'react-redux'
 import store from './store'
 import { Toaster } from './components/ui/toaster'
 import { CreatePost } from './pages/createPost'
+import { Posts } from './pages/posts'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -22,7 +23,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path='/signin' element={<SignIn/>}/>
       <Route path='/signup' element={<SignUp/>}/>
       <Route path='/user' element={<Profile/>}/>
-      {/* <Route path='/posts' element={<Posts/>}/> */}
+      <Route path='/posts' element={<Posts/>}/>
       <Route path='/create_post' element={<CreatePost/>}/>
     </Routes>
     </BrowserRouter>
