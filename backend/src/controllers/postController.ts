@@ -4,11 +4,15 @@ import { postZodSchema } from '../config/zodSchemas/postZodSchema.ts';
 import { db } from '../config/db.ts';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import fs from 'fs/promises';
+import jwt from 'jsonwebtoken';
+import { cleanUpFiles } from '../utils/index.ts';
 
 export async function createPost(req: Request, res: Response) {
   try {
     console.log(req.body)
+    console.log(req.cookies)
+    // const token = req.cookies['auth'];
+    // const user = jwt.verify(token, process.env.JWT_SECRET as string);
     const parseResult = postZodSchema.safeParse({
       ...req.body,
       tags: JSON.parse(req?.body?.tags),
@@ -21,7 +25,8 @@ export async function createPost(req: Request, res: Response) {
         await cleanUpFiles(req.files as Express.Multer.File[]);
       }
       res.status(422).json({
-        error: parseResult.error.flatten().fieldErrors
+        message: "Schema validation failed",
+        data: parseResult.error.flatten().fieldErrors
       });
     }
     else {
@@ -34,14 +39,9 @@ export async function createPost(req: Request, res: Response) {
       
       const existingPost = await db.select().from(postSchema).where(and(eq(postSchema.title, title), eq(postSchema.author, author)));
       if (existingPost.length > 0) {
-        if (req?.files) {
-          await cleanUpFiles(req.files as Express.Multer.File[]);
-        }
-        res.status(409).json({ error: "Post with the same title and author already exists" });
+        throw new Error("Post with the same title and author already exists", { cause: 409 });
       }
-
       const imagePaths = images.map((image) => image.path);
-
       const postData:InsertPost = {
         userId: 1, // Assuming you have user ID in req.user
         title,
@@ -64,38 +64,19 @@ export async function createPost(req: Request, res: Response) {
       const newPost = await db.insert(postSchema).values(postData).returning();
 
       if (newPost.length === 0) {
-        if (req?.files) {
-          await cleanUpFiles(req.files as Express.Multer.File[]);
-        }
-        res.status(500).json({ error: "Failed to create post" });
+        throw new Error("Failed to create post", { cause: 500 });
       }
-
-      res.status(201).json({ error: null, data: newPost[0] });
+      res.status(201).json({ message: "Post created successfully!", data: newPost[0] });
     }
   } catch (error: any) {
     if (req?.files) {
       await cleanUpFiles(req.files as Express.Multer.File[]);
     }
     console.error("Error creating post:", error);
-    if (error instanceof z.ZodError) {
-      res.status(422).json({
-        error: error.flatten().fieldErrors
-      });
-    }
-    res.status(500).json({ error: "Internal server error" });
+    res.status(error?.cause || 500).json({ message:  error.message || "Internal server error", data: null });
   }
 }
 
-async function cleanUpFiles(files: Express.Multer.File | Express.Multer.File[]) {
-  const filesArray = Array.isArray(files) ? files : [files];
-  for (const file of filesArray) {
-    try {
-      await fs.unlink(file.path);
-    } catch (err) {
-      console.error("Error deleting file:", err);
-    }
-  }
-}
 
 export async function getPosts(req: Request, res: Response) {
   try{

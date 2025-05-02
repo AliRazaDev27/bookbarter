@@ -83,6 +83,7 @@ export const postZodSchema = z.object({
     isNegotiable: z.boolean().default(false),
     locationApproximate: z.string().min(1).max(128),
     tags: z.string().array(),
-    images: z.any().refine((file) => file instanceof FileList, "Images must be a valid file").array().max(8, "You can upload a maximum of 8 images"),
+    images: z.instanceof(FileList)
+    .refine((list) => list.length > 0, "No files selected")
+    .refine((list) => list.length <= 5, "Maximum 5 files allowed")
 });
-

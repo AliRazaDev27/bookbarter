@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,120 +8,107 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { bookConditionEnum, bookCategoryEnum, exchangeTypeEnum, currencyEnum, languageEnum } from '@/zodSchemas/post';
-import axios from 'axios';
+import { postZodSchema } from '@/zodSchemas/post';
+import { createPost } from '@/api/mutations/createPost';
+import * as z from 'zod';
+
+type PostFormValues = z.infer<typeof postZodSchema>;
 
 export function CreatePost(){
-  const [formData, setFormData] = useState({
-    title: '',
-    author: '',
-    language: '',
-    description: '',
-    category: '',
-    bookCondition: '',
-    exchangeType: '',
-    exchangeCondition: '',
-    isPublic: true,
-    price: '0',
-    currency: '',
-    isNegotiable: false,
-    locationApproximate: '',
-    tags: [] as string[],
-    images: [] as File[],
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<PostFormValues>({
+    resolver: zodResolver(postZodSchema),
+    defaultValues: {
+      title: '',
+      author: '',
+      language: undefined,
+      description: '',
+      category: undefined,
+      bookCondition: undefined,
+      exchangeType: undefined,
+      exchangeCondition: '',
+      isPublic: true,
+      price: '0',
+      currency: undefined,
+      isNegotiable: false,
+      locationApproximate: '',
+      tags: [],
+      images: undefined,
+    },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
-  };
+  const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
+    const formData = new FormData();
 
-  const handleSelectChange = (id: string, value: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
-  };
+    formData.append('title', data.title);
+    formData.append('author', data.author);
+    if (data.language) formData.append('language', data.language);
+    formData.append('description', data.description);
+    if (data.category) formData.append('category', data.category);
+    if (data.bookCondition) formData.append('bookCondition', data.bookCondition);
+    if (data.exchangeType) formData.append('exchangeType', data.exchangeType);
+    formData.append('exchangeCondition', data.exchangeCondition);
+    formData.append('isPublic', data.isPublic.toString());
+    formData.append('price', data.price);
+    if (data.currency) formData.append('currency', data.currency);
+    formData.append('isNegotiable', data.isNegotiable.toString());
+    formData.append('locationApproximate', data.locationApproximate);
+    formData.append('tags', JSON.stringify(data.tags));
 
-  const handleCheckboxChange = (id: string, checked: boolean) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: checked,
-    }));
-  };
+    if (data.images && data.images.length > 0) {
+      for (let i = 0; i < data.images.length; i++) {
+        formData.append('images', data.images[i]);
+      }
+    }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setFormData((prevData) => ({
-      ...prevData,
-      images: files,
-    }));
+    const result = await createPost(formData);
+    console.log(result);
   };
 
   const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      tags: value.split(',').map(tag => tag.trim()),
-    }));
+    setValue('tags', value.split(',').map(tag => tag.trim()));
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const realFormData = new FormData();
-
-    realFormData.append('title', formData.title);
-    realFormData.append('author', formData.author);
-    realFormData.append('language', formData.language);
-    realFormData.append('description', formData.description);
-    realFormData.append('category', formData.category);
-    realFormData.append('bookCondition', formData.bookCondition);
-    realFormData.append('exchangeType', formData.exchangeType);
-    realFormData.append('exchangeCondition', formData.exchangeCondition);
-    realFormData.append('isPublic', formData.isPublic.toString());
-    realFormData.append('price', formData.price);
-    realFormData.append('currency', formData.currency);
-    realFormData.append('isNegotiable', formData.isNegotiable.toString());
-    realFormData.append('locationApproximate', formData.locationApproximate);
-    realFormData.append('tags', JSON.stringify(formData.tags));
-    formData.images.forEach((image) => {
-      realFormData.append('images', image, image.name);
-    });
-    
-    console.log(realFormData);
-
-
-    try{
-      const result = await axios.post('http://localhost:3000/posts/create', realFormData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log(result.data);
-    }
-    catch(err){
-      console.error('Error creating post:', err);
-    }
-
+  const handleLanguageChange = (value: string) => {
+    setValue('language', value as PostFormValues['language']);
   };
+
+  const handleCategoryChange = (value: string) => {
+    setValue('category', value as PostFormValues['category']);
+  };
+
+  const handleBookConditionChange = (value: string) => {
+    setValue('bookCondition', value as PostFormValues['bookCondition']);
+  };
+
+  const handleExchangeTypeChange = (value: string) => {
+    setValue('exchangeType', value as PostFormValues['exchangeType']);
+  };
+
+  const handleCurrencyChange = (value: string) => {
+    setValue('currency', value as PostFormValues['currency']);
+  };
+
+
+  const watchedTags = watch('tags');
 
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <Label htmlFor="title">Title</Label>
-          <Input type="text" id="title" value={formData.title} onChange={handleInputChange} required />
+          <Input type="text" id="title" {...register('title')} required />
+          {errors.title && <span className="text-red-500 text-sm">{errors.title.message}</span>}
         </div>
         <div>
           <Label htmlFor="author">Author</Label>
-          <Input type="text" id="author" value={formData.author} onChange={handleInputChange} required />
+          <Input type="text" id="author" {...register('author')} required />
+          {errors.author && <span className="text-red-500 text-sm">{errors.author.message}</span>}
         </div>
         <div>
           <Label htmlFor="language">Language</Label>
-          <Select onValueChange={(value) => handleSelectChange('language', value)} value={formData.language}>
+          <Select onValueChange={handleLanguageChange} value={watch('language')}>
             <SelectTrigger>
               <SelectValue placeholder="Select language" />
             </SelectTrigger>
@@ -129,14 +118,16 @@ export function CreatePost(){
               ))}
             </SelectContent>
           </Select>
+          {errors.language && <span className="text-red-500 text-sm">{errors.language.message}</span>}
         </div>
         <div>
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" value={formData.description} onChange={handleInputChange} required />
+          <Textarea id="description" {...register('description')} required />
+          {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
         </div>
         <div>
           <Label htmlFor="category">Category</Label>
-          <Select onValueChange={(value) => handleSelectChange('category', value)} value={formData.category}>
+          <Select onValueChange={handleCategoryChange} value={watch('category')}>
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
@@ -146,10 +137,11 @@ export function CreatePost(){
               ))}
             </SelectContent>
           </Select>
+          {errors.category && <span className="text-red-500 text-sm">{errors.category.message}</span>}
         </div>
         <div>
           <Label htmlFor="bookCondition">Book Condition</Label>
-          <Select onValueChange={(value) => handleSelectChange('bookCondition', value)} value={formData.bookCondition}>
+          <Select onValueChange={handleBookConditionChange} value={watch('bookCondition')}>
             <SelectTrigger>
               <SelectValue placeholder="Select condition" />
             </SelectTrigger>
@@ -159,10 +151,11 @@ export function CreatePost(){
               ))}
             </SelectContent>
           </Select>
+          {errors.bookCondition && <span className="text-red-500 text-sm">{errors.bookCondition.message}</span>}
         </div>
         <div>
           <Label htmlFor="exchangeType">Exchange Type</Label>
-          <Select onValueChange={(value) => handleSelectChange('exchangeType', value)} value={formData.exchangeType}>
+          <Select onValueChange={handleExchangeTypeChange} value={watch('exchangeType')}>
             <SelectTrigger>
               <SelectValue placeholder="Select exchange type" />
             </SelectTrigger>
@@ -172,22 +165,26 @@ export function CreatePost(){
               ))}
             </SelectContent>
           </Select>
+          {errors.exchangeType && <span className="text-red-500 text-sm">{errors.exchangeType.message}</span>}
         </div>
         <div>
           <Label htmlFor="exchangeCondition">Exchange Condition</Label>
-          <Textarea id="exchangeCondition" value={formData.exchangeCondition} onChange={handleInputChange} required />
+          <Textarea id="exchangeCondition" {...register('exchangeCondition')} required />
+          {errors.exchangeCondition && <span className="text-red-500 text-sm">{errors.exchangeCondition.message}</span>}
         </div>
         <div className="flex items-center space-x-2">
-          <Checkbox id="isPublic" checked={formData.isPublic} onCheckedChange={(checked: boolean) => handleCheckboxChange('isPublic', checked)} />
+          <Checkbox id="isPublic" checked={watch('isPublic')} onCheckedChange={(checked: boolean) => setValue('isPublic', checked)} />
           <Label htmlFor="isPublic">Is Public</Label>
+          {errors.isPublic && <span className="text-red-500 text-sm">{errors.isPublic.message}</span>}
         </div>
         <div>
           <Label htmlFor="price">Price</Label>
-          <Input type="text" id="price" value={formData.price} onChange={handleInputChange} required />
+          <Input type="text" id="price" {...register('price')} required />
+          {errors.price && <span className="text-red-500 text-sm">{errors.price.message}</span>}
         </div>
         <div>
           <Label htmlFor="currency">Currency</Label>
-          <Select onValueChange={(value) => handleSelectChange('currency', value)} value={formData.currency}>
+          <Select onValueChange={handleCurrencyChange} value={watch('currency')}>
             <SelectTrigger>
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
@@ -197,22 +194,27 @@ export function CreatePost(){
               ))}
             </SelectContent>
           </Select>
+          {errors.currency && <span className="text-red-500 text-sm">{errors.currency.message}</span>}
         </div>
         <div className="flex items-center space-x-2">
-          <Checkbox id="isNegotiable" checked={formData.isNegotiable} onCheckedChange={(checked: boolean) => handleCheckboxChange('isNegotiable', checked)} />
+          <Checkbox id="isNegotiable" checked={watch('isNegotiable')} onCheckedChange={(checked: boolean) => setValue('isNegotiable', checked)} />
           <Label htmlFor="isNegotiable">Is Negotiable</Label>
+          {errors.isNegotiable && <span className="text-red-500 text-sm">{errors.isNegotiable.message}</span>}
         </div>
         <div>
           <Label htmlFor="locationApproximate">Approximate Location</Label>
-          <Input type="text" id="locationApproximate" value={formData.locationApproximate} onChange={handleInputChange} required />
+          <Input type="text" id="locationApproximate" {...register('locationApproximate')} required />
+          {errors.locationApproximate && <span className="text-red-500 text-sm">{errors.locationApproximate.message}</span>}
         </div>
         <div>
           <Label htmlFor="tags">Tags (comma-separated)</Label>
-          <Input type="text" id="tags" value={formData.tags.join(', ')} onChange={handleTagInputChange} />
+          <Input type="text" id="tags" value={watchedTags?.join(', ') || ''} onChange={handleTagInputChange} />
+          {errors.tags && <span className="text-red-500 text-sm">{errors.tags.message}</span>}
         </div>
         <div>
           <Label htmlFor="images">Images (max 8)</Label>
-          <Input type="file" id="images" name='images' multiple onChange={handleFileChange} accept="image/*" />
+          <Input type="file" id="images" {...register('images')} multiple accept="image/*" />
+          {errors.images && <span className="text-red-500 text-sm">{errors.images.message as string}</span>}
         </div>
         <Button type="submit">Create Post</Button>
       </form>
