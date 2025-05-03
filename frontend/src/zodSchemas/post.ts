@@ -69,20 +69,17 @@ export const postZodSchema = z.object({
     title: z.string().min(1).max(255),
     author: z.string().min(1).max(255),
     language: languageEnum,
-    description: z.string().min(1).max(512),
+    description: z.string().max(512).optional(),
     category: bookCategoryEnum,
     bookCondition: bookConditionEnum,
     exchangeType: exchangeTypeEnum,
-    exchangeCondition: z.string().min(1).max(512),
+    exchangeCondition: z.string().max(512).optional(),
     isPublic: z.boolean().default(true),
     price: z.string()
-    .min(1)
     .max(9)
-    .regex(/^\d+(\.\d{1,2})?$/).default("0"),
+    .regex(/^\d+(\.\d{1,2})?$/).default("0.00"),
     currency: currencyEnum,
-    isNegotiable: z.boolean().default(false),
     locationApproximate: z.string().min(1).max(128),
-    tags: z.string().array(),
     images: z.instanceof(FileList)
     .refine((list) => list.length > 0, "No files selected")
     .refine((list) => list.length <= 5, "Maximum 5 files allowed")

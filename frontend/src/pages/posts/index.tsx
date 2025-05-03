@@ -1,13 +1,14 @@
 import { useState,useEffect } from "react"
 import PostCard from "./post-card"
 import { FilterSidebar } from "./filter-sidebar"
+import axios from "axios"
 
 export function Posts() {
   const [posts, setPosts] = useState([])
   useEffect(()=>{
     const fetchPosts = async () => {
-    const data = await fetch("http://localhost:3000/posts",{method:"GET"});
-    const posts = await data.json();
+    const data = await axios.get("http://localhost:3000/posts");
+    const posts = await data.data;
     console.log(posts)
     setPosts(posts?.data);
     }

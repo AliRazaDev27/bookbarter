@@ -1,4 +1,3 @@
-import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
@@ -10,12 +9,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { bookConditionEnum, bookCategoryEnum, exchangeTypeEnum, currencyEnum, languageEnum } from '@/zodSchemas/post';
 import { postZodSchema } from '@/zodSchemas/post';
 import { createPost } from '@/api/mutations/createPost';
+import { useState } from 'react';
 import * as z from 'zod';
+import { useToast } from '@/hooks/use-toast';
 
 type PostFormValues = z.infer<typeof postZodSchema>;
 
 export function CreatePost(){
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<PostFormValues>({
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const { register, handleSubmit, formState: { errors }, setError, setValue, watch } = useForm<PostFormValues>({
     resolver: zodResolver(postZodSchema),
     defaultValues: {
       title: '',
@@ -27,11 +30,9 @@ export function CreatePost(){
       exchangeType: undefined,
       exchangeCondition: '',
       isPublic: true,
-      price: '0',
+      price: '0.00',
       currency: undefined,
-      isNegotiable: false,
       locationApproximate: '',
-      tags: [],
       images: undefined,
     },
   });
@@ -41,32 +42,49 @@ export function CreatePost(){
 
     formData.append('title', data.title);
     formData.append('author', data.author);
-    if (data.language) formData.append('language', data.language);
-    formData.append('description', data.description);
-    if (data.category) formData.append('category', data.category);
-    if (data.bookCondition) formData.append('bookCondition', data.bookCondition);
-    if (data.exchangeType) formData.append('exchangeType', data.exchangeType);
-    formData.append('exchangeCondition', data.exchangeCondition);
+    if (data?.language) formData.append('language', data.language);
+    if (data?.description) formData.append('description', data.description);
+    if (data?.category) formData.append('category', data.category);
+    if (data?.bookCondition) formData.append('bookCondition', data.bookCondition);
+    if (data?.exchangeType) formData.append('exchangeType', data.exchangeType);
+    if (data?.exchangeCondition) formData.append('exchangeCondition', data.exchangeCondition);
     formData.append('isPublic', data.isPublic.toString());
     formData.append('price', data.price);
-    if (data.currency) formData.append('currency', data.currency);
-    formData.append('isNegotiable', data.isNegotiable.toString());
+    if (data?.currency) formData.append('currency', data.currency);
     formData.append('locationApproximate', data.locationApproximate);
-    formData.append('tags', JSON.stringify(data.tags));
-
     if (data.images && data.images.length > 0) {
       for (let i = 0; i < data.images.length; i++) {
         formData.append('images', data.images[i]);
       }
     }
-
+    setLoading(true);
     const result = await createPost(formData);
+    setLoading(false);
     console.log(result);
-  };
-
-  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setValue('tags', value.split(',').map(tag => tag.trim()));
+    if(result.status === 422){
+      Object.entries(result.data).forEach(([key, value]) => {
+        setError(key as keyof PostFormValues, {
+          type: "server",
+          message: Array.isArray(value) ? value[0] : value,
+        })
+      })
+    }
+    if(result.status === 201){
+      toast({
+        title: "Success",
+        description: result?.message || "Post created successfully",
+        duration: 2000,
+        className: "bg-green-600 text-white",
+      })
+    }
+    else{
+      toast({
+        title: "Error",
+        description: result?.message || "An error occurred while creating the post",
+        duration: 3000,
+        className: "bg-red-500 text-white",
+      })
+    }
   };
 
   const handleLanguageChange = (value: string) => {
@@ -88,9 +106,6 @@ export function CreatePost(){
   const handleCurrencyChange = (value: string) => {
     setValue('currency', value as PostFormValues['currency']);
   };
-
-
-  const watchedTags = watch('tags');
 
   return (
     <div className="container mx-auto py-8">
@@ -122,7 +137,7 @@ export function CreatePost(){
         </div>
         <div>
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" {...register('description')} required />
+          <Textarea id="description" {...register('description')}/>
           {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
         </div>
         <div>
@@ -169,7 +184,7 @@ export function CreatePost(){
         </div>
         <div>
           <Label htmlFor="exchangeCondition">Exchange Condition</Label>
-          <Textarea id="exchangeCondition" {...register('exchangeCondition')} required />
+          <Textarea id="exchangeCondition" {...register('exchangeCondition')}/>
           {errors.exchangeCondition && <span className="text-red-500 text-sm">{errors.exchangeCondition.message}</span>}
         </div>
         <div className="flex items-center space-x-2">
@@ -196,27 +211,17 @@ export function CreatePost(){
           </Select>
           {errors.currency && <span className="text-red-500 text-sm">{errors.currency.message}</span>}
         </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox id="isNegotiable" checked={watch('isNegotiable')} onCheckedChange={(checked: boolean) => setValue('isNegotiable', checked)} />
-          <Label htmlFor="isNegotiable">Is Negotiable</Label>
-          {errors.isNegotiable && <span className="text-red-500 text-sm">{errors.isNegotiable.message}</span>}
-        </div>
         <div>
           <Label htmlFor="locationApproximate">Approximate Location</Label>
           <Input type="text" id="locationApproximate" {...register('locationApproximate')} required />
           {errors.locationApproximate && <span className="text-red-500 text-sm">{errors.locationApproximate.message}</span>}
         </div>
         <div>
-          <Label htmlFor="tags">Tags (comma-separated)</Label>
-          <Input type="text" id="tags" value={watchedTags?.join(', ') || ''} onChange={handleTagInputChange} />
-          {errors.tags && <span className="text-red-500 text-sm">{errors.tags.message}</span>}
-        </div>
-        <div>
           <Label htmlFor="images">Images (max 8)</Label>
           <Input type="file" id="images" {...register('images')} multiple accept="image/*" />
           {errors.images && <span className="text-red-500 text-sm">{errors.images.message as string}</span>}
         </div>
-        <Button type="submit">Create Post</Button>
+        <Button type="submit" disabled={loading}>Create Post</Button>
       </form>
     </div>
   );

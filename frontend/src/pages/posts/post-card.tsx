@@ -19,13 +19,10 @@ interface PostCardProps {
     exchangeType: string
     price: string
     currency: string
-    isNegotiable: boolean
     locationApproximate: string
-    tags: string[]
     images: string[]
     status: string
     createdAt: string
-    expiresAt: string
   }
   user?: {
     id: number
@@ -136,11 +133,6 @@ export default function PostCard({ post, user }: PostCardProps) {
               <div>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">Exchange Type</span>
                 <p className="text-sm font-medium capitalize">{postData?.exchangeType}</p>
-                {postData?.isNegotiable && (
-                  <Badge variant="outline" className="text-xs mt-1">
-                    Negotiable
-                  </Badge>
-                )}
               </div>
             </div>
             <div className="mt-3">
@@ -172,14 +164,6 @@ export default function PostCard({ post, user }: PostCardProps) {
 
               <div>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">Tags</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {postData?.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="text-xs capitalize">
-                      <Tag className="h-2.5 w-2.5 mr-1" />
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
               </div>
             </div>
           </TabsContent>

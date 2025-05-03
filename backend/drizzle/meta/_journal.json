@@ -15,6 +15,13 @@
       "when": 1745329095253,
       "tag": "0001_flimsy_weapon_omega",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746191503801,
+      "tag": "0002_dashing_riptide",
+      "breakpoints": true
     }
   ]
 }

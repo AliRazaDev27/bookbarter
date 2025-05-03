@@ -93,13 +93,12 @@ export async function login(req: Request, res: Response) {
     if (!secret) {
       throw new Error("JWT secret is not defined", { cause: 500 });
     }
-    const token =  jwt.sign(tokenData, process.env.JWT_SECRET!);
+    const token =  jwt.sign(tokenData, secret);
 
-    res.cookie('auth', token, {
+    res.cookie('auth-token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      // secure: true,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
     });
 
 // data: { ...user[0], picture: user[0].picture ? `${baseUrl}/${user[0].picture}` : null, }
