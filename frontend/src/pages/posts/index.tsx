@@ -1,31 +1,22 @@
-import { useState,useEffect } from "react"
 import PostCard from "./post-card"
 import { FilterSidebar } from "./filter-sidebar"
-import axios from "axios"
+import { useLoaderData } from "react-router"
 
 export function Posts() {
-  const [posts, setPosts] = useState([])
-  useEffect(()=>{
-    const fetchPosts = async () => {
-    const data = await axios.get("http://localhost:3000/posts");
-    const posts = await data.data;
-    console.log(posts)
-    setPosts(posts?.data);
-    }
-    fetchPosts();
-  },[])
+  const posts = useLoaderData<[]>()
+  console.log(posts)
   return (
-    <div className="flex min-h-screen">
-     <FilterSidebar/> 
-    <main className="flex-1 border-2 border-red-600 min-h-screen flex-col items-center justify-center p-4 md:p-24 bg-gray-50">
-    <div>
-    {
-      posts.map((post,index) => (
-      <PostCard post={post} key={index}/>
-      ))
-    }
-    </div>
-    </main>
+    <div className="flex min-h-screen border-2 border-yellow-600">
+      <FilterSidebar />
+      <main className="flex-1  mx-[8px] border border-red-600 min-h-screen flex-col items-center justify-center p-4 md:p-24">
+        <div>
+          {
+            posts.length > 0 && posts.map((post, index) => (
+              <PostCard post={post} key={index} />
+            ))
+          }
+        </div>
+      </main>
     </div>
   )
 }

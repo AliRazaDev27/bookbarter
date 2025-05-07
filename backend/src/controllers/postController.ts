@@ -82,6 +82,12 @@ export async function createPost(req: Request, res: Response) {
 
 export async function getPosts(req: Request, res: Response) {
   try{
+    const searchParams = req.query;
+    const { title, author,minPrice, maxPrice, currency,languages, categories, bookCondition, exchangeType, sortBy, page=1 } = searchParams;
+    console.log(title, author,minPrice, maxPrice, currency,languages, categories, bookCondition, exchangeType, sortBy);
+    
+    
+    res.end();
     const posts = await db.select().from(postSchema).where(and(eq(postSchema.isPublic, true), eq(postSchema.isDeleted, false))).orderBy(desc(postSchema.createdAt));
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const postsWithFullPictureUrl = posts.map(post => ({
