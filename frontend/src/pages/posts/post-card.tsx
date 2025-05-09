@@ -27,7 +27,7 @@ interface PostCardProps {
   user?: {
     id: number
     username: string
-    avatarUrl?: string
+    picture: string
   }
 }
 
@@ -35,13 +35,8 @@ export default function PostCard({ post, user }: PostCardProps) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [favoriteCount, setFavoriteCount] = useState(12)
 
-  const defaultUser = {
-    id: 1,
-    username: "bookworm42",
-  }
-
   const postData = post 
-  const userData = user || defaultUser
+ 
 
   // Format date to be more readable
   const formatDate = (dateString: string) => {
@@ -63,28 +58,19 @@ export default function PostCard({ post, user }: PostCardProps) {
   }
 
   return (
-    <Card className="w-full max-w-sm overflow-hidden">
+    <Card className="w-full max-w-lg overflow-hidden">
       <CardHeader className="p-0">
         {/* Image Carousel */}
         <Carousel className="w-full">
           <CarouselContent>
             {postData?.images.map((_, index) => (
               <CarouselItem key={index}>
-                <div className="relative border border-yellow-600 h-64 w-full">
+                <div className="h-80 w-full">
                   <img
                     src={post?.images[index] || `/placeholder.svg?height=400&width=600&text=Image ${index + 1}`}
                     alt={`${postData.title} image ${index + 1}`}
                     className="m-auto h-full"
                   />
-                  {/* Status Badge */}
-                  {index === 0 && (
-                    <Badge
-                      variant={postData.status === "available" ? "default" : "secondary"}
-                      className="absolute top-3 right-3 capitalize"
-                    >
-                      {postData.status}
-                    </Badge>
-                  )}
                 </div>
               </CarouselItem>
             ))}
@@ -98,12 +84,12 @@ export default function PostCard({ post, user }: PostCardProps) {
         {/* User Info */}
         <div className="flex items-center gap-2 mb-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={"/placeholder.svg"} />
+            <AvatarImage src={ user?.picture || "/placeholder.svg"} />
             <AvatarFallback className="bg-neutral-900/10 text-neutral-900 dark:bg-neutral-50/10 dark:text-neutral-50">
-              {userData.username.substring(0, 2).toUpperCase()}
+              {user?.username.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium">{userData.username}</span>
+          <span className="text-sm font-medium">{user?.username}</span>
         </div>
 
         {/* Title and Price */}

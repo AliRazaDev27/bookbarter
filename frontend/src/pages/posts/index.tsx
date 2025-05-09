@@ -3,19 +3,17 @@ import { FilterSidebar } from "./filter-sidebar"
 import { useLoaderData } from "react-router"
 
 export function Posts() {
-  const posts = useLoaderData<[]>()
-  console.log(posts)
+  const result: {message: string,data: Array<{post: any, user: any}>} = useLoaderData()
+  console.log(result)
   return (
-    <div className="flex min-h-screen border-2 border-yellow-600">
+    <div className="flex min-h-screen">
       <FilterSidebar />
-      <main className="flex-1  mx-[8px] border border-red-600 min-h-screen flex-col items-center justify-center p-4 md:p-24">
-        <div>
+      <main className="flex-1 flex flex-col gap-8 mx-[8px] min-h-screen  items-center justify-center p-4 md:p-24">
           {
-            posts.length > 0 && posts.map((post, index) => (
-              <PostCard post={post} key={index} />
+            result?.data?.length > 0 && result?.data?.map((data, index) => (
+              <PostCard post={data.post} user={data.user} key={index} />
             ))
           }
-        </div>
       </main>
     </div>
   )

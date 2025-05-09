@@ -68,7 +68,8 @@ const router = createBrowserRouter([
             languages ?? undefined,
             categories ?? undefined
           );
-          return [];
+          console.log(result);
+          return result;
         },
       }
     ]
