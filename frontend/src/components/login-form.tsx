@@ -60,7 +60,7 @@ export function LoginForm({
         duration: 2000,
         className: "bg-green-600 text-white",
       })
-      navigate("/user");
+      navigate("/");
     }
     else if (result.status === 422) {
       Object.entries(result.error).forEach(([key, value]) => {

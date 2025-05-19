@@ -6,18 +6,20 @@ import { Home } from './pages/homepage'
 import { SignIn } from './pages/signin'
 import { Dashboard } from './pages/dashboard'
 import { SignUp } from './pages/signup'
-import { Profile } from './pages/user'
 import { Provider } from 'react-redux'
 import store from './store'
 import { Toaster } from './components/ui/toaster'
 import { CreatePost } from './pages/createPost'
 import { Posts } from './pages/posts'
-import { Header } from './components/header'
+import { Header } from './pages/homepage/header'
 import { getPosts } from './api/queries/getPosts'
+import { ServerEventHandler } from './pages/homepage/serverEventHanler'
+import { Profile } from './pages/profile'
+import { UserInfo } from './pages/profile/info'
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/home',
     element: <Home />,
   },
   {
@@ -37,7 +39,7 @@ const router = createBrowserRouter([
     element: <CreatePost />,
   },
   {
-    path: '/posts',
+    path: '/',
     element: <Header />,
     children: [
       {
@@ -71,6 +73,14 @@ const router = createBrowserRouter([
           console.log(result);
           return result;
         },
+      },
+      {
+        path: '/profile',
+        element: <Profile />,
+      },
+      {
+        path: '/profile/info',
+        element: <UserInfo />,
       }
     ]
   },
@@ -79,14 +89,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      {/* <BrowserRouter>
-      <Route element={<Header />}>
-      <Route path='/posts' element={<Posts/>}/>
-      </Route>
-    </BrowserRouter> */}
       <RouterProvider router={router} />
       <Toaster />
-
+      <ServerEventHandler />
     </Provider>
   </StrictMode>,
 )

@@ -1,6 +1,6 @@
 import { userSchema } from "./user.ts";
 import { postSchema } from "./posts.ts";
-import { pgTable,serial,integer,timestamp,index,uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable,serial,integer,timestamp,index,uniqueIndex,boolean } from "drizzle-orm/pg-core";
 
 export const favoriteSchema = pgTable('favorites', {
     id: serial('id').primaryKey(),
@@ -10,6 +10,7 @@ export const favoriteSchema = pgTable('favorites', {
   postId: integer('post_id')
     .notNull()
     .references(() => postSchema.id, { onDelete: 'cascade' }),
+    isFav: boolean('is_fav').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 },(table) => [

@@ -8,9 +8,11 @@ import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useSearchParams } from "react-router"
 import { bookCategoryEnum, languageEnum, bookConditionEnum, exchangeTypeEnum } from "@/zodSchemas/post"
+import { useState } from "react"
 
 
 export function FilterSidebar() {
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [title, setTitle] = React.useState("")
   const [author, setAuthor] = React.useState("")
   const [minPrice, setMinPrice] = React.useState(0)
@@ -82,18 +84,34 @@ export function FilterSidebar() {
     setSearchParams({})
   }
 
+  React.useLayoutEffect(() => {
+    const updateHeight = () => {
+      const header = document.getElementById("header")
+      if (header) {
+        setHeaderHeight(header.offsetHeight)
+      }
+    };
+    updateHeight(); // initial
+    window.addEventListener("resize", updateHeight); // responsive
+
+    return () => window.removeEventListener("resize", updateHeight);
+  }, [])
 
   return (
     <div className="relative w-[calc(max(300px,20%))] max-lg:w-0">
       <section id="filter-sidebar"
         ref={sidebarRef}
-        className="sticky max-lg:fixed hidden z-50 bg-white w-full lg:flex flex-col gap-4 px-2 py-2 top-[70px] h-[calc(100svh-70px)] overflow-y-auto border border-black rounded-lg">
+        style={{
+          top: `${headerHeight}px`,
+          height: `calc(100svh - ${headerHeight}px)`,
+        }}
+        className="sticky max-lg:fixed hidden z-50 bg-neutral-50 w-full lg:flex flex-col gap-4 px-2 py-2 overflow-y-auto border-r">
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Filters</h2>
             <Button
-            className="lg:hidden"
-             variant="ghost" size="icon" onClick={() => sidebarRef.current?.classList.toggle("hidden")}>
+              className="lg:hidden"
+              variant="ghost" size="icon" onClick={() => sidebarRef.current?.classList.toggle("hidden")}>
               <Filter className="h-4 w-4" />
               <span className="sr-only">Filter</span>
             </Button>
@@ -143,21 +161,21 @@ export function FilterSidebar() {
                       <Input id="price-max" type="number" min={0} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} />
                     </div>
 
-                  <div className="flex gap-2 items-center justify-between">
-                    <Label htmlFor="currency" className="text-sm font-medium text-gray-600 mb-2">
-                      Currency
-                    </Label>
-                    <Select onValueChange={(e) => setCurrency(e)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ALL">ALL</SelectItem>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="PKR">PKR</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    <div className="flex gap-2 items-center justify-between">
+                      <Label htmlFor="currency" className="text-sm font-medium text-gray-600 mb-2">
+                        Currency
+                      </Label>
+                      <Select onValueChange={(e) => setCurrency(e)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALL">ALL</SelectItem>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="PKR">PKR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </CollapsibleContent>
               </li>
@@ -181,46 +199,46 @@ export function FilterSidebar() {
                   <ul
                     className=
                     "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5"
-                 >
-                  <div className="flex gap-2 items-center justify-between px-2 py-2">
-                    <Select onValueChange={(e) => setBookCondition(e)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Book Condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {
-                          bookConditions.map((condition) => (
-                            <SelectItem key={condition.value} value={condition.value}>{condition.name}</SelectItem>
-                          ))
-                        }
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  >
+                    <div className="flex gap-2 items-center justify-between px-2 py-2">
+                      <Select onValueChange={(e) => setBookCondition(e)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Book Condition" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {
+                            bookConditions.map((condition) => (
+                              <SelectItem key={condition.value} value={condition.value}>{condition.name}</SelectItem>
+                            ))
+                          }
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div className="flex gap-2 items-center justify-between px-2 py-2">
-                    <Select onValueChange={(e) => setExchangeType(e)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Exchange Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {
-                          exchangeTypes.map((exchange) => (
-                            <SelectItem key={exchange.value} value={exchange.value}>{exchange.name}</SelectItem>
-                          ))
-                        }
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </ul>
-              </CollapsibleContent>
-            </li>
-          </Collapsible>
-        </div>
+                    <div className="flex gap-2 items-center justify-between px-2 py-2">
+                      <Select onValueChange={(e) => setExchangeType(e)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Exchange Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {
+                            exchangeTypes.map((exchange) => (
+                              <SelectItem key={exchange.value} value={exchange.value}>{exchange.name}</SelectItem>
+                            ))
+                          }
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </ul>
+                </CollapsibleContent>
+              </li>
+            </Collapsible>
+          </div>
 
-        <div
-          className="relative flex w-full min-w-0 flex-col p-2"
-        >
-          <Collapsible className="group/collapsible">
+          <div
+            className="relative flex w-full min-w-0 flex-col p-2"
+          >
+            <Collapsible className="group/collapsible">
               <CollapsibleTrigger asChild>
                 <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
                   Language <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
@@ -231,11 +249,11 @@ export function FilterSidebar() {
                 <div>
                   {languages.map((language) => (
                     <li
-                    className="group/menu-item relative list-none"
-                     key={language.value}>
+                      className="group/menu-item relative list-none"
+                      key={language.value}>
                       <button
                         onClick={() => toggleLanguage(language.value)}
-                        // isActive={selectedLanguages.includes(language.value)}
+                      // isActive={selectedLanguages.includes(language.value)}
                       >
                         {language.name}
                       </button>
@@ -244,104 +262,94 @@ export function FilterSidebar() {
                 </div>
 
               </CollapsibleContent>
-          </Collapsible>
-        </div>
+            </Collapsible>
+          </div>
 
-        <div
-          className="relative flex w-full min-w-0 flex-col p-2"
-        >
-          <Collapsible className="group/collapsible">
-            <li className="group/menu-item relative list-none">
-              <CollapsibleTrigger asChild>
-                <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
-                  Sort By <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                  <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
-                </button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <ul>
-                  <li>
-                    <button onClick={() => setSortBy("latest")} 
-                    // isActive={sortBy === "latest"}
-                    >
-                      <ArrowDownAZ className="mr-2 h-4 w-4" />
-                      Latest
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setSortBy("popularity")}
-                      // isActive={sortBy === "popularity"}
-                    >
-                      <Flame className="mr-2 h-4 w-4" />
-                      Popularity
-                    </button>
-                  </li>
-                  <li>
-                    <button onClick={() => setSortBy("price-low")}
-                    //  isActive={sortBy === "price-low"}
-                    >
-                      <ArrowUpDown className="mr-2 h-4 w-4" />
-                      Price: Low to High
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setSortBy("price-high")}
-                      // isActive={sortBy === "price-high"}
-                    >
-                      <ArrowUpDown className="mr-2 h-4 w-4" />
-                      Price: High to Low
-                    </button>
-                  </li>
-                </ul>
-              </CollapsibleContent>
-            </li>
-          </Collapsible>
-        </div>
-
-        <div
-          className="relative flex w-full min-w-0 flex-col p-2 border"
-        >
-          <Collapsible className="group/collapsible">
-            <li className="group/menu-item relative list-none">
-              <CollapsibleTrigger asChild>
-                <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
-                  Categories <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
-                  <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
-                </button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <ul>
-                  {categories.map((category) => (
-                    <li key={category.value}>
-                      <button
-                        onClick={() => toggleCategory(category.value)}
-                        // isActive={selectedCategories.includes(category.value)}
+          <div
+            className="relative flex w-full min-w-0 flex-col p-2"
+          >
+            <Collapsible className="group/collapsible">
+              <li className="group/menu-item relative list-none">
+                <CollapsibleTrigger asChild>
+                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
+                    Sort By <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                    <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <ul className="space-y-2 pt-3 ps-4">
+                    <li>
+                      <button onClick={() => setSortBy("date_desc")} className="flex items-center"
+                      // isActive={sortBy === "latest"}
                       >
-                        {category.name}
+                        <ArrowDownAZ className="mr-2 h-4 w-4" />
+                        Latest
                       </button>
                     </li>
-                  ))}
-                </ul>
-              </CollapsibleContent>
-            </li>
-          </Collapsible>
-        </div>
+                    <li>
+                      <button onClick={() => setSortBy("price_asc")} className="flex items-center"
+                      >
+                        <ArrowUpDown className="mr-2 h-4 w-4" />
+                        Price: Low to High
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => setSortBy("price_desc")} className="flex items-center"
+                      // isActive={sortBy === "price-high"}
+                      >
+                        <ArrowUpDown className="mr-2 h-4 w-4" />
+                        Price: High to Low
+                      </button>
+                    </li>
+                  </ul>
+                </CollapsibleContent>
+              </li>
+            </Collapsible>
+          </div>
 
-        <div
-          className="flex flex-row gap-2 w-full p-2 border"
-        >
+          <div
+            className="relative flex w-full min-w-0 flex-col p-2 border"
+          >
+            <Collapsible className="group/collapsible">
+              <li className="group/menu-item relative list-none">
+                <CollapsibleTrigger asChild>
+                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
+                    Categories <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                    <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <ul>
+                    {categories.map((category) => (
+                      <li key={category.value}>
+                        <button
+                          onClick={() => toggleCategory(category.value)}
+                        // isActive={selectedCategories.includes(category.value)}
+                        >
+                          {category.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </CollapsibleContent>
+              </li>
+            </Collapsible>
+          </div>
+
+          <div
+            className="flex flex-row gap-2 w-full p-2 border"
+          >
             <Button variant="outline" className="w-full" onClick={clearFilter}>
               Clear
             </Button>
             <Button variant="outline" className="w-full" onClick={applyFilter}>
               Search
             </Button>
-        </div>
+          </div>
 
         </section>
       </section>
     </div>
   )
-  }
+}

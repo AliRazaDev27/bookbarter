@@ -1,11 +1,12 @@
 import type { Request, Response } from 'express';
 import { InsertPost, postSchema } from '../models/posts.ts';
+import { favoriteSchema } from '../models/favorites.ts';
 import { postZodSchema } from '../config/zodSchemas/postZodSchema.ts';
 import { db } from '../config/db.ts';
 import { and, eq, desc, asc, gte, lte, ilike, inArray, SQL, sql } from 'drizzle-orm';
 import fs from 'fs/promises';
 import jwt from 'jsonwebtoken';
-import { cleanUpFiles } from '../utils/index.ts';
+import { cleanUpFiles, getCurrentUserId } from '../utils/index.ts';
 import { userSchema } from '../models/user.ts';
 
 export async function createPost(req: Request, res: Response) {
@@ -83,6 +84,7 @@ export async function createPost(req: Request, res: Response) {
 
 export async function getPosts(req: Request, res: Response) {
   try {
+    const userId = await getCurrentUserId(req)
     const searchParams = req.query;
     const {
       title,
@@ -95,10 +97,24 @@ export async function getPosts(req: Request, res: Response) {
       bookCondition,
       exchangeType,
       sortBy,
-      page = '1' // Ensure page is a string initially for consistent parsing
+      page = '1',
+      limit = '8', // Ensure page is a string initially for consistent parsing
     } = searchParams;
 
-    let query = db.select().from(postSchema);
+    let query = db.select({
+      posts: postSchema,
+      users: userSchema,
+      isFav: userId ? sql<boolean>`COALESCE(
+            (
+      SELECT ${favoriteSchema.isFav}
+    FROM ${favoriteSchema}
+    WHERE ${favoriteSchema.userId} = ${userId}
+    AND ${favoriteSchema.postId} = ${postSchema.id}
+    LIMIT 1
+      ),false
+          )`.as('isFav')
+        : sql<boolean>`false`.as('isFav'),
+    }).from(postSchema);
 
     const conditions: SQL[] = [];
     conditions.push(eq(postSchema.isPublic, true));
@@ -139,18 +155,13 @@ export async function getPosts(req: Request, res: Response) {
     }
 
     if (conditions.length > 0) {
-      query.where(and(...conditions)); // This was a mistake in my plan, query.where doesn't take query as first arg
-      // Correct way:
-      // query.where(and(...conditions)); // This modifies the query object if it's mutable, or reassign:
-      //  query = query.where(sql.join(conditions, sql` AND `));
+      query.where(and(...conditions));
     }
 
     let orderByClause: SQL | SQL[] = desc(postSchema.createdAt); // Default
     if (sortBy && typeof sortBy === 'string') {
       if (sortBy === 'price_asc') orderByClause = asc(postSchema.price);
       else if (sortBy === 'price_desc') orderByClause = desc(postSchema.price);
-      else if (sortBy === 'title_asc') orderByClause = asc(postSchema.title);
-      else if (sortBy === 'author_asc') orderByClause = asc(postSchema.author);
       else if (sortBy === 'date_asc') orderByClause = asc(postSchema.createdAt);
       else if (sortBy === 'date_desc') orderByClause = desc(postSchema.createdAt);
     }
@@ -159,8 +170,8 @@ export async function getPosts(req: Request, res: Response) {
     query.orderBy(orderByClause);
 
 
-    const pageSize = 4;
-    const pageNumber = parseInt(page as string, 10);
+    const pageSize = parseInt(limit as string);
+    const pageNumber = parseInt(page as string);
     if (isNaN(pageNumber) || pageNumber < 1) {
       // res.status(400).json({ message: "Invalid page number", data: null }); // Or handle as you see fit, maybe default to 1
       // For now, let's assume if it's invalid, we don't paginate or default to page 1
@@ -177,16 +188,32 @@ export async function getPosts(req: Request, res: Response) {
       post: {
         ...post.posts,
         images: post.posts.images.map((image) => `${baseUrl}/${image}`), // Assuming images are stored in `/uploads/`
+        isFav: post.isFav,
       },
-      user:{
+      user: {
         id: post.users.id,
         username: post.users.username,
         picture: post.users.picture ? `${baseUrl}/${post.users.picture}` : null, // Assuming profile picture is stored in `/uploads/`
-      }
+      },
     }));
     res.status(200).json({ message: "Posts fetched successfully!", data: postsWithFullPictureUrl })
   }
   catch (error: any) {
     res.status(500).json({ message: error?.message || "Internal server error", data: null })
+  }
+}
+
+export async function getPostsByUser(req: Request, res: Response) {
+  try {
+    const userId = await getCurrentUserId(req)
+    if (!userId) {
+      throw new Error("Unauthorized", { cause: 401 });
+    }
+    const myPosts = await db.select().from(postSchema).where(eq(postSchema.userId, userId));
+    res.status(200).json({ message: "Posts fetched successfully!", data: myPosts });
+  }
+  catch (error: any) {
+    res.status(error?.cause || 500).json({ message: error?.message || "Internal server error", data: [] })
+
   }
 }

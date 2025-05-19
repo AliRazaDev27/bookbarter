@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Heart, MessageCircle, Repeat, MapPin, Tag, Clock, DollarSign, BookOpen } from "lucide-react"
+import { Heart, MessageCircle, Clock , BookOpen, Trophy } from "lucide-react"
+import { ExchangeRequestDialog } from "./exchange-request-dialog"
+import axios from "axios"
 
 interface PostCardProps {
   post?: {
@@ -17,12 +19,15 @@ interface PostCardProps {
     category: string
     bookCondition: string
     exchangeType: string
+    exchangeCondition: string
     price: string
     currency: string
     locationApproximate: string
     images: string[]
     status: string
     createdAt: string
+    isFav: boolean,
+    favCount: string,
   }
   user?: {
     id: number
@@ -32,11 +37,6 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, user }: PostCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [favoriteCount, setFavoriteCount] = useState(12)
-
-  const postData = post 
- 
 
   // Format date to be more readable
   const formatDate = (dateString: string) => {
@@ -48,13 +48,14 @@ export default function PostCard({ post, user }: PostCardProps) {
   }
 
   // Handle favorite toggle
-  const toggleFavorite = () => {
-    if (isFavorite) {
-      setFavoriteCount(favoriteCount - 1)
-    } else {
-      setFavoriteCount(favoriteCount + 1)
+  const toggleFavorite = async() => {
+    try{
+      const response = await axios.put(`http://localhost:3000/favorites/toggle/${post?.id}`,{},{withCredentials:true})
+      console.log(response.data)
     }
-    setIsFavorite(!isFavorite)
+    catch(error:any){
+     console.log(error) 
+    }
   }
 
   return (
@@ -63,12 +64,12 @@ export default function PostCard({ post, user }: PostCardProps) {
         {/* Image Carousel */}
         <Carousel className="w-full">
           <CarouselContent>
-            {postData?.images.map((_, index) => (
+            {post?.images.map((_, index) => (
               <CarouselItem key={index}>
                 <div className="h-80 w-full">
                   <img
                     src={post?.images[index] || `/placeholder.svg?height=400&width=600&text=Image ${index + 1}`}
-                    alt={`${postData.title} image ${index + 1}`}
+                    alt={`${post.title} image ${index + 1}`}
                     className="m-auto h-full"
                   />
                 </div>
@@ -80,77 +81,84 @@ export default function PostCard({ post, user }: PostCardProps) {
         </Carousel>
       </CardHeader>
 
-      <CardContent className="p-4">
+      <CardContent className="p-2">
         {/* User Info */}
-        <div className="flex items-center gap-2 mb-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={ user?.picture || "/placeholder.svg"} />
+        <div className="flex items-center gap-3 mb-3">
+          <Avatar className="h-12 md:h-14 w-10 md:w-12">
+            <AvatarImage src={user?.picture || "/placeholder.svg"} />
             <AvatarFallback className="bg-neutral-900/10 text-neutral-900 dark:bg-neutral-50/10 dark:text-neutral-50">
               {user?.username.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium">{user?.username}</span>
-        </div>
-
-        {/* Title and Price */}
-        <div className="flex justify-between items-start mb-2">
-          <h2 className="text-xl font-bold capitalize">{postData?.title}</h2>
-          <div className="flex items-center">
-            <DollarSign className="h-4 w-4 text-green-600" />
-            <span className="font-bold">
-              {postData?.price} {postData?.currency}
-            </span>
+          <div className="flex flex-col py-1 md:py-2 gap-0 md:gap-1">
+            <span className="text-md font-medium">{user?.username}</span>
+            <p className="text-sm">{formatDate(post?.createdAt || "")}</p>
+          </div>
+          <div className="ml-auto">
+          { post?.exchangeType === "pay" && <div className="flex gap-1 items-center">
+              <span className="font-medium">{post?.price}</span>
+              <span className="text-xs self-end">{post?.currency}</span> 
+          </div>}
+          { post?.exchangeType !== "pay" && <div className="flex items-center">  
+            <Badge className="text-sm md:text-lg capitalize">
+              {post?.exchangeType}
+            </Badge>
+          </div>}
           </div>
         </div>
 
-        {/* Author */}
-        <div className="text-sm text-neutral-500 mb-4 dark:text-neutral-400">
-          By <span className="font-medium capitalize">{postData?.author}</span>
-        </div>
+        {/* Title and Price */}
+
+          <div className="flex flex-col gap-1 items-start ps-2">
+            <h2 className="text-lg md:text-xl font-semibold">{post?.title}</h2>
+            <p className="text-sm text-neutral-600 mb-2 md:mb-4 dark:text-neutral-300">
+              By <span className="font-medium">{post?.author}</span>
+            </p>
+          </div>
+
+          {/* Author */}
+
 
         {/* Tabs */}
         <Tabs defaultValue="info" className="w-full">
           <TabsContent value="info" className="mt-0">
-            <div className="grid grid-cols-2 gap-3 mt-2">
-              <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Condition</span>
-                <p className="text-sm font-medium capitalize">{postData?.bookCondition}</p>
-              </div>
-              <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Exchange Type</span>
-                <p className="text-sm font-medium capitalize">{postData?.exchangeType}</p>
-              </div>
-            </div>
-            <div className="mt-3">
-              <p className="line-clamp-3 text-sm">{postData?.description}</p>
+            <div className="">
+              <p className="line-clamp-3 text-xs md:text-sm text-neutral-600">{post?.description}</p>
             </div>
           </TabsContent>
 
           <TabsContent value="details" className="mt-0">
             <div className="space-y-3">
-              <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Description</span>
-                <p className="text-sm">{postData?.description}</p>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">Condition</span>
+                  <p className="text-sm font-medium capitalize">{post?.bookCondition}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">Exchange Type</span>
+                  <p className="text-sm font-medium capitalize">{post?.exchangeType}</p>
+                </div>
               </div>
 
-              <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Category</span>
-                <p className="text-sm font-medium capitalize">{postData?.category}</p>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">Category</span>
+                  <p className="text-sm font-medium capitalize">{post?.category}</p>
+                </div>
+
+                <div className="flex flex-col  gap-1">
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">Location</span>
+                  <span className="capitalize text-sm font-medium">{post?.locationApproximate}</span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
-                <MapPin className="h-3 w-3" />
-                <span className="capitalize">{postData?.locationApproximate}</span>
-              </div>
-
-              <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Listed On</span>
-                <p className="text-sm">{formatDate(postData?.createdAt || "")}</p>
-              </div>
-
-              <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Tags</span>
-              </div>
+              {
+                post?.exchangeCondition && (
+                  <div className="py-2 text-sm font-normal">
+                    {post?.exchangeCondition}
+                  </div>
+                )
+              }
             </div>
           </TabsContent>
 
@@ -169,18 +177,27 @@ export default function PostCard({ post, user }: PostCardProps) {
 
       <CardFooter className="flex justify-between items-center bg-neutral-100/20 p-3 border-t dark:bg-neutral-800/20">
         <Button variant="ghost" size="sm" onClick={toggleFavorite} className="flex items-center">
-          <Heart className={`h-4 w-4 mr-1 ${isFavorite ? "fill-rose-500 text-rose-500" : ""}`} />
-          <span>{favoriteCount}</span>
+          <Heart className={`h-4 w-4 mr-1 ${post?.isFav ? "fill-rose-500 text-rose-500" : ""}`} />
+          <span>{post?.favCount}</span>
         </Button>
 
-        <Button variant="ghost" size="sm" className="flex items-center">
-          <Repeat className="h-4 w-4 mr-1" />
-          <span>Exchange</span>
-        </Button>
+        <div className="flex items-center">
+          <ExchangeRequestDialog data={
+            {
+              postID: post?.id,
+              title: post?.title,
+              author: post?.author,
+              username: user?.username,
+              price: post?.price,
+              type: post?.exchangeType,
+              bookList: "",
+            }
+          } />
+        </div>
 
         <Button variant="ghost" size="sm" className="flex items-center">
           <MessageCircle className="h-4 w-4 mr-1" />
-          <span>Message</span>
+          <span className="max-md:hidden">Message</span>
         </Button>
       </CardFooter>
     </Card>

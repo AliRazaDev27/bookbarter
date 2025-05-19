@@ -3,6 +3,7 @@ import { FilterSidebar } from "./filter-sidebar";
 import { useLoaderData } from "react-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getPosts } from "../../api/queries/getPosts"; // Assuming this path is correct
+import { useSearchParams } from "react-router";
 
 export function Posts() {
   const initialData: {message: string,data: Array<{post: any, user: any}>} = useLoaderData() as {message: string,data: Array<{post: any, user: any}>};
@@ -11,6 +12,9 @@ export function Posts() {
   const [page, setPage] = useState(1); // Assuming page 1 is loaded by useLoaderData
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true); // Assume more posts initially
+  const [searchParams,setSearchParams] = useSearchParams();
+
+  const LIMIT = 8; // Number of posts per page
 
   // Effect to update posts if initialData changes (e.g. due to filters)
   useEffect(() => {
@@ -49,7 +53,30 @@ export function Posts() {
       try {
         // Pass current filter parameters if they are available in this component's scope
         // For now, fetching without filters other than page & limit
-        const newPostsData = await getPosts(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, page, 10); // Fetch page with limit 10
+        const title = searchParams.get("title") || undefined;
+        const author = searchParams.get("author") || undefined;
+        const minPrice = searchParams.get("minPrice") || undefined;
+        const maxPrice = searchParams.get("maxPrice") || undefined;
+        const currency = searchParams.get("currency") || undefined;
+        const bookCondition = searchParams.get("bookCondition") || undefined;
+        const exchangeType = searchParams.get("exchangeType") || undefined;
+        const sortBy = searchParams.get("sortBy") || undefined;
+        const languages = searchParams.get("languages") || undefined;
+        const categories = searchParams.get("categories") || undefined;
+        const newPostsData = await getPosts(
+          title,
+          author,
+          minPrice,
+          maxPrice,
+          currency,
+          bookCondition,
+          exchangeType,
+          sortBy,
+          languages,
+          categories,
+          page,
+          LIMIT
+        );
 
         if (newPostsData && newPostsData.data && newPostsData.data.length > 0) {
           setPosts(prevPosts => [...prevPosts, ...newPostsData.data]);
@@ -70,9 +97,9 @@ export function Posts() {
   }, [page, hasMore, initialData?.data]); // Added initialData.data to re-evaluate hasMore on filter changes
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen w-full">
       <FilterSidebar />
-      <main className="flex-1 flex flex-col gap-8 mx-[8px] min-h-screen items-center p-4 md:p-24">
+      <main className="flex flex-1 flex-col gap-4 md:gap-8 min-h-screen w-full items-center mt-[60px] md:mt-[78px] px-2 md:px-0">
           {posts.length > 0 && posts.map((data, index) => {
             if (posts.length === index + 1) {
               // Attach ref to a wrapper div around the last element

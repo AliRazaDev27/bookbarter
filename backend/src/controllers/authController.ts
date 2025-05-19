@@ -8,6 +8,7 @@ import userRegistrationZodSchema from "../config/zodSchemas/userRegistrationZodS
 import { z } from "zod";
 import fs from 'fs/promises';
 import jwt from "jsonwebtoken";
+import { getCurrentUserId } from "../utils/index.ts";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -131,9 +132,16 @@ export async function logout(req: Request, res: Response) {
 }
 export async function session(req: Request, res: Response) {
   try {
-
+    const userId = await getCurrentUserId(req)
+    if (!userId) {
+      throw new Error("Unauthorized", { cause: 401 });
+    }
+    const [user] = await db.select().from(userSchema).where(eq(userSchema.id, userId));
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    user.picture = `${baseUrl}/${user.picture}`
+    res.status(200).json({ data: user });
   }
   catch (error: any) {
-
+    res.status(error?.cause || 500).json({ data: null });
   }
 }

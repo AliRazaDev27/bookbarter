@@ -22,6 +22,27 @@
       "when": 1746191503801,
       "tag": "0002_dashing_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1747027839921,
+      "tag": "0003_lying_mandrill",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1747028241647,
+      "tag": "0004_furry_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1747056437385,
+      "tag": "0005_nappy_menace",
+      "breakpoints": true
     }
   ]
 }

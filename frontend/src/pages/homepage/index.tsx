@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { Link } from "react-router"
 export function Home() {
 
@@ -9,6 +10,14 @@ export function Home() {
           <Link to="dashboard" className="bg-gradient-to-br from-[#9F25FF] to-[#FF7A00] hover:scale-105 transition-transform duration-200 hover:shadow-sm hover:shadow-white/70 text-lg font-semibold py-4 rounded-3xl w-[160px] text-center">Dashboard</Link>
           <Link to="create_post" className="bg-gradient-to-br from-[#9F25FF] to-[#FF7A00] hover:scale-105 transition-transform duration-200 hover:shadow-sm hover:shadow-white/70 text-lg font-semibold py-4 rounded-3xl w-[160px] text-center">Create Post</Link>
           <Link to="posts" className="bg-gradient-to-br from-[#9F25FF] to-[#FF7A00] hover:scale-105 transition-transform duration-200 hover:shadow-sm hover:shadow-white/70 text-lg font-semibold py-4 rounded-3xl w-[160px] text-center">Posts</Link>
+          <Button className="bg-gradient-to-br from-[#9F25FF] to-[#FF7A00] hover:scale-105 transition-transform duration-200 hover:shadow-sm hover:shadow-white/70 text-lg font-semibold py-4 rounded-3xl w-[160px] text-center"
+          onClick={async()=>{
+            await fetch("http://localhost:3000/test", {
+              method: "GET",
+          })
+
+          }}
+          >Test</Button>
         </section>
         </main>
   )

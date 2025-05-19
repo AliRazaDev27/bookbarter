@@ -92,6 +92,7 @@ export const postSchema = pgTable('posts', {
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull().$onUpdate(()=>new Date()),
     isDeleted: boolean("is_deleted").default(false).notNull(),
+    favCount: integer("fav_count").notNull().default(0),
 }, (post) => ([
     index("post_user_id_index").on(post.userId),
     index("post_language_index").on(post.language),
