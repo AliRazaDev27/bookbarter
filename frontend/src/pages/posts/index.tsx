@@ -12,7 +12,7 @@ export function Posts() {
   const [page, setPage] = useState(1); // Assuming page 1 is loaded by useLoaderData
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true); // Assume more posts initially
-  const [searchParams,setSearchParams] = useSearchParams();
+  const [searchParams,_] = useSearchParams();
 
   const LIMIT = 8; // Number of posts per page
 
@@ -122,4 +122,33 @@ export function Posts() {
       </main>
     </div>
   );
+}
+
+export async function loader({ request }: { request: Request }) {
+          const url = new URL(request.url)
+          const title = url.searchParams.get('title')
+          const author = url.searchParams.get('author')
+          const minPrice = url.searchParams.get('minPrice')
+          const maxPrice = url.searchParams.get('maxPrice')
+          const currency = url.searchParams.get('currency')
+          const bookCondition = url.searchParams.get('bookCondition')
+          const exchangeType = url.searchParams.get('exchangeType')
+          const sortBy = url.searchParams.get('sortBy')
+          const languages = url.searchParams.get('languages')
+          const categories = url.searchParams.get('categories')
+          console.log(title, author, minPrice, maxPrice, currency, bookCondition, exchangeType, sortBy, languages, categories)
+          const result = await getPosts(
+            title ?? undefined,
+            author ?? undefined,
+            minPrice ?? undefined,
+            maxPrice ?? undefined,
+            currency ?? undefined,
+            bookCondition ?? undefined,
+            exchangeType ?? undefined,
+            sortBy ?? undefined,
+            languages ?? undefined,
+            categories ?? undefined
+          );
+          console.log(result);
+          return result;
 }

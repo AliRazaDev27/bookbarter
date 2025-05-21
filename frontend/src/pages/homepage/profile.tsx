@@ -1,31 +1,12 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import axios from "axios";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setUserData } from "@/store/features/user/userSlice";
 import { Link } from "react-router";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useSelector } from "react-redux";
 
 export function Profile() {
-    const dispatch = useDispatch();
     const user = useSelector((state: any) => state.user.data)
-    useEffect(() => {
-        const getUser = async () => {
-            try {
-                const response = await axios.get("http://localhost:3000/auth/session", { withCredentials: true });
-                if (!!response.data) {
-                    dispatch(setUserData(response.data.data));
-                }
-            }
-            catch (error) {
-                console.log(error);
-            }
-        }
-        getUser();
-    }, [])
     return (
         <div>
-            { !!user ?
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
             <Avatar className="h-9 md:h-11 w-9 md:w-11 ">
@@ -52,9 +33,6 @@ export function Profile() {
                     </section>
                 </DropdownMenuContent>
             </DropdownMenu>
-            :
-            <Link to={"/signin"} className="border bg-blue-400 hover:bg-blue-500 text-white font-bold px-4 rounded-3xl h-9 md:h-11 flex items-center">Login</Link>
-            }
         </div>
     )
 }
