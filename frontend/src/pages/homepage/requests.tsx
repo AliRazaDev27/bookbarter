@@ -80,7 +80,7 @@ export function Requests() {
                             <div className="flex flex-col gap-4">
                                 {
                                     sentRequests.map((request: any, index: number) =>
-                                        <div key={request.id} className="relative">
+                                        <div key={`sent-request-${request.id}`} className="relative">
                                             <RequestCard data={request} type="sent" />
                                             <Button
                                                 className="absolute bottom-1 left-4"
@@ -95,7 +95,7 @@ export function Requests() {
                             <div className="flex flex-col gap-4">
                                 {
                                     receivedRequests.map((request: any, index: number) =>
-                                        <div key={request.id} className="relative">
+                                        <div key={`received-request-${request.id}`} className="relative">
                                             <RequestCard data={request} type="received" />
                                             <Button
                                                 className="absolute bottom-1 left-4"

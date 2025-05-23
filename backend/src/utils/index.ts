@@ -12,6 +12,7 @@ export async function cleanUpFiles(files: Express.Multer.File | Express.Multer.F
   }
 }
 export async function getCurrentUserId(req:Request){
+  try{
     const token = req.cookies["auth-token"];
     if (!token) {
       return null;
@@ -21,4 +22,9 @@ export async function getCurrentUserId(req:Request){
     const id = (user as { id: number }).id;
     return id
     }
+  }
+  catch (error) {
+    console.error("Error getting current user ID:", error);
+    return null;
+  }
 }

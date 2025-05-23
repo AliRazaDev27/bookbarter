@@ -99,7 +99,7 @@ export function Posts() {
   return (
     <div className="flex min-h-screen w-full">
       <FilterSidebar />
-      <main className="flex flex-1 flex-col gap-4 md:gap-8 min-h-screen w-full items-center mt-[60px] md:mt-[78px] px-2 md:px-0">
+      <main className="flex flex-1 flex-col gap-4 md:gap-8 min-h-screen w-full items-center pt-[60px] md:pt-[78px] px-2 md:px-0">
           {posts.length > 0 && posts.map((data, index) => {
             if (posts.length === index + 1) {
               // Attach ref to a wrapper div around the last element
@@ -118,7 +118,9 @@ export function Posts() {
           })}
           {loading && <p className="text-center my-4">Loading more posts...</p>}
           {!hasMore && posts.length > 0 && <p className="text-center my-4">You've reached the end!</p>}
-          {posts.length === 0 && !loading && <p className="text-center my-4">No posts found.</p>}
+          {posts.length === 0 && !loading && <div className="h-[80svh] flex flex-col items-center justify-center">
+            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-center">No posts found.</p>
+            </div>}
       </main>
     </div>
   );

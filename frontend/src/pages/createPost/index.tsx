@@ -12,10 +12,13 @@ import { createPost } from '@/api/mutations/createPost';
 import { useState } from 'react';
 import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router';
+import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { MdOutlineCreate } from 'react-icons/md';
 
 type PostFormValues = z.infer<typeof postZodSchema>;
 
-export function CreatePost(){
+export function CreatePost() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { register, handleSubmit, formState: { errors }, setError, setValue, watch } = useForm<PostFormValues>({
@@ -61,7 +64,7 @@ export function CreatePost(){
     const result = await createPost(formData);
     setLoading(false);
     console.log(result);
-    if(result.status === 422){
+    if (result.status === 422) {
       Object.entries(result.data).forEach(([key, value]) => {
         setError(key as keyof PostFormValues, {
           type: "server",
@@ -69,7 +72,7 @@ export function CreatePost(){
         })
       })
     }
-    if(result.status === 201){
+    if (result.status === 201) {
       toast({
         title: "Success",
         description: result?.message || "Post created successfully",
@@ -77,7 +80,7 @@ export function CreatePost(){
         className: "bg-green-600 text-white",
       })
     }
-    else{
+    else {
       toast({
         title: "Error",
         description: result?.message || "An error occurred while creating the post",
@@ -108,121 +111,138 @@ export function CreatePost(){
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-black hover:bg-neutral-700 text-white font-semibold px-4 py-2 rounded-md">
+          <MdOutlineCreate className="mr-2 h-4 w-4" />
+          Create Post
+        </Button>
+      </DialogTrigger>
+      <DialogContent className='h-full md:h-[90svh] max-w-2xl overflow-y-auto'>
         <div>
-          <Label htmlFor="title">Title</Label>
-          <Input type="text" id="title" {...register('title')} required />
-          {errors.title && <span className="text-red-500 text-sm">{errors.title.message}</span>}
+          <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input type="text" id="title" {...register('title')} required />
+              {errors.title && <span className="text-red-500 text-sm">{errors.title.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="author">Author</Label>
+              <Input type="text" id="author" {...register('author')} required />
+              {errors.author && <span className="text-red-500 text-sm">{errors.author.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="language">Language</Label>
+              <Select onValueChange={handleLanguageChange} value={watch('language')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languageEnum.options.map((lang) => (
+                    <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.language && <span className="text-red-500 text-sm">{errors.language.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea id="description" {...register('description')} />
+              {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select onValueChange={handleCategoryChange} value={watch('category')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {bookCategoryEnum.options.map((category) => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.category && <span className="text-red-500 text-sm">{errors.category.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="bookCondition">Book Condition</Label>
+              <Select onValueChange={handleBookConditionChange} value={watch('bookCondition')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  {bookConditionEnum.options.map((condition) => (
+                    <SelectItem key={condition} value={condition}>{condition}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.bookCondition && <span className="text-red-500 text-sm">{errors.bookCondition.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="exchangeType">Exchange Type</Label>
+              <Select onValueChange={handleExchangeTypeChange} value={watch('exchangeType')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select exchange type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {exchangeTypeEnum.options.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.exchangeType && <span className="text-red-500 text-sm">{errors.exchangeType.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="exchangeCondition">Exchange Condition</Label>
+              <Textarea id="exchangeCondition" {...register('exchangeCondition')} />
+              {errors.exchangeCondition && <span className="text-red-500 text-sm">{errors.exchangeCondition.message}</span>}
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox id="isPublic" checked={watch('isPublic')} onCheckedChange={(checked: boolean) => setValue('isPublic', checked)} />
+              <Label htmlFor="isPublic">Is Public</Label>
+              {errors.isPublic && <span className="text-red-500 text-sm">{errors.isPublic.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="price">Price</Label>
+              <Input type="text" id="price" {...register('price')} required />
+              {errors.price && <span className="text-red-500 text-sm">{errors.price.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="currency">Currency</Label>
+              <Select onValueChange={handleCurrencyChange} value={watch('currency')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencyEnum.options.map((currency) => (
+                    <SelectItem key={currency} value={currency}>{currency}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.currency && <span className="text-red-500 text-sm">{errors.currency.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="locationApproximate">Approximate Location</Label>
+              <Input type="text" id="locationApproximate" {...register('locationApproximate')} required />
+              {errors.locationApproximate && <span className="text-red-500 text-sm">{errors.locationApproximate.message}</span>}
+            </div>
+            <div>
+              <Label htmlFor="images">Images (max 8)</Label>
+              <Input type="file" id="images" {...register('images')} multiple accept="image/*" />
+              {errors.images && <span className="text-red-500 text-sm">{errors.images.message as string}</span>}
+            </div>
+            <div className='flex items-center justify-between mt-4'>
+              <DialogClose asChild>
+                <Button className='bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md'>
+                Cancel
+                  </Button>
+              </DialogClose>
+              <Button type="submit" disabled={loading}>Create Post</Button>
+            </div>
+          </form>
         </div>
-        <div>
-          <Label htmlFor="author">Author</Label>
-          <Input type="text" id="author" {...register('author')} required />
-          {errors.author && <span className="text-red-500 text-sm">{errors.author.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="language">Language</Label>
-          <Select onValueChange={handleLanguageChange} value={watch('language')}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select language" />
-            </SelectTrigger>
-            <SelectContent>
-              {languageEnum.options.map((lang) => (
-                <SelectItem key={lang} value={lang}>{lang}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.language && <span className="text-red-500 text-sm">{errors.language.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="description">Description</Label>
-          <Textarea id="description" {...register('description')}/>
-          {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="category">Category</Label>
-          <Select onValueChange={handleCategoryChange} value={watch('category')}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {bookCategoryEnum.options.map((category) => (
-                <SelectItem key={category} value={category}>{category}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.category && <span className="text-red-500 text-sm">{errors.category.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="bookCondition">Book Condition</Label>
-          <Select onValueChange={handleBookConditionChange} value={watch('bookCondition')}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select condition" />
-            </SelectTrigger>
-            <SelectContent>
-              {bookConditionEnum.options.map((condition) => (
-                <SelectItem key={condition} value={condition}>{condition}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.bookCondition && <span className="text-red-500 text-sm">{errors.bookCondition.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="exchangeType">Exchange Type</Label>
-          <Select onValueChange={handleExchangeTypeChange} value={watch('exchangeType')}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select exchange type" />
-            </SelectTrigger>
-            <SelectContent>
-              {exchangeTypeEnum.options.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.exchangeType && <span className="text-red-500 text-sm">{errors.exchangeType.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="exchangeCondition">Exchange Condition</Label>
-          <Textarea id="exchangeCondition" {...register('exchangeCondition')}/>
-          {errors.exchangeCondition && <span className="text-red-500 text-sm">{errors.exchangeCondition.message}</span>}
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox id="isPublic" checked={watch('isPublic')} onCheckedChange={(checked: boolean) => setValue('isPublic', checked)} />
-          <Label htmlFor="isPublic">Is Public</Label>
-          {errors.isPublic && <span className="text-red-500 text-sm">{errors.isPublic.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="price">Price</Label>
-          <Input type="text" id="price" {...register('price')} required />
-          {errors.price && <span className="text-red-500 text-sm">{errors.price.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="currency">Currency</Label>
-          <Select onValueChange={handleCurrencyChange} value={watch('currency')}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              {currencyEnum.options.map((currency) => (
-                <SelectItem key={currency} value={currency}>{currency}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.currency && <span className="text-red-500 text-sm">{errors.currency.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="locationApproximate">Approximate Location</Label>
-          <Input type="text" id="locationApproximate" {...register('locationApproximate')} required />
-          {errors.locationApproximate && <span className="text-red-500 text-sm">{errors.locationApproximate.message}</span>}
-        </div>
-        <div>
-          <Label htmlFor="images">Images (max 8)</Label>
-          <Input type="file" id="images" {...register('images')} multiple accept="image/*" />
-          {errors.images && <span className="text-red-500 text-sm">{errors.images.message as string}</span>}
-        </div>
-        <Button type="submit" disabled={loading}>Create Post</Button>
-      </form>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

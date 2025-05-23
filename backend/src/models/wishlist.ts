@@ -1,4 +1,4 @@
-import { pgTable,serial,integer,varchar,timestamp,boolean } from "drizzle-orm/pg-core";
+import { pgTable,serial,integer,varchar,timestamp} from "drizzle-orm/pg-core";
 import { userSchema } from "./user.ts";
 
 export const wishlistSchema = pgTable('wishlist', {

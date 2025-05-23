@@ -6,7 +6,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from '../config/db.ts';
 export async function toggleFavorite(req: Request, res: Response) {
     try {
-        const userId = await getCurrentUserId(req)
+        const userId = req.user?.id
         if (!userId) {
             throw new Error("Unauthorized", { cause: 401 });
         }

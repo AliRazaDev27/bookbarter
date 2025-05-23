@@ -5,12 +5,15 @@ import { postZodSchema } from '../config/zodSchemas/postZodSchema.ts';
 import { db } from '../config/db.ts';
 import { and, eq, desc, asc, gte, lte, ilike, inArray, SQL, sql } from 'drizzle-orm';
 import fs from 'fs/promises';
-import jwt from 'jsonwebtoken';
-import { cleanUpFiles, getCurrentUserId } from '../utils/index.ts';
+import { cleanUpFiles } from '../utils/index.ts';
 import { userSchema } from '../models/user.ts';
 
 export async function createPost(req: Request, res: Response) {
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new Error("Unauthorized", { cause: 401 });
+    }
     const images = req?.files as Express.Multer.File[];
     if (images) {
       for (const image of images) {
@@ -19,12 +22,6 @@ export async function createPost(req: Request, res: Response) {
         image.path = `uploads/posts/${newName}`; // Update the path in the file object
       }
     }
-    const token = req.cookies["auth-token"];
-    if (!token) {
-      throw new Error("Unauthorized", { cause: 401 });
-    }
-    const user = jwt.verify(token, process.env.JWT_SECRET as string);
-    const id = (user as { id: number }).id;
     const parseResult = postZodSchema.safeParse({
       ...req.body,
       isPublic: Boolean(req.body.isPublic),
@@ -50,7 +47,7 @@ export async function createPost(req: Request, res: Response) {
       }
       const imagePaths = images.map((image) => image.path);
       const postData: InsertPost = {
-        userId: id, // Assuming you have user ID in req.user
+        userId,
         title,
         author,
         language,
@@ -84,7 +81,7 @@ export async function createPost(req: Request, res: Response) {
 
 export async function getPosts(req: Request, res: Response) {
   try {
-    const userId = await getCurrentUserId(req)
+    const userId = req.user?.id;
     const searchParams = req.query;
     const {
       title,
@@ -104,7 +101,7 @@ export async function getPosts(req: Request, res: Response) {
     let query = db.select({
       posts: postSchema,
       users: userSchema,
-      isFav: userId ? sql<boolean>`COALESCE(
+      isFav: !!userId ? sql<boolean>`COALESCE(
             (
       SELECT ${favoriteSchema.isFav}
     FROM ${favoriteSchema}
@@ -205,15 +202,94 @@ export async function getPosts(req: Request, res: Response) {
 
 export async function getPostsByUser(req: Request, res: Response) {
   try {
-    const userId = await getCurrentUserId(req)
+    const userId = req.user?.id;
     if (!userId) {
       throw new Error("Unauthorized", { cause: 401 });
     }
-    const myPosts = await db.select().from(postSchema).where(eq(postSchema.userId, userId));
-    res.status(200).json({ message: "Posts fetched successfully!", data: myPosts });
+    const posts = await db.select({
+      posts: postSchema,
+      users: userSchema,
+      isFav: userId ? sql<boolean>`COALESCE(
+            (
+      SELECT ${favoriteSchema.isFav}
+    FROM ${favoriteSchema}
+    WHERE ${favoriteSchema.userId} = ${userId}
+    AND ${favoriteSchema.postId} = ${postSchema.id}
+    LIMIT 1
+      ),false
+          )`.as('isFav')
+        : sql<boolean>`false`.as('isFav'),
+    }).from(postSchema).where(eq(postSchema.userId, userId)).innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const postsWithFullPictureUrl = posts.map(post => ({
+      post: {
+        ...post.posts,
+        images: post.posts.images.map((image) => `${baseUrl}/${image}`), // Assuming images are stored in `/uploads/`
+        isFav: post.isFav,
+      },
+      user: {
+        id: post.users.id,
+        username: post.users.username,
+        picture: post.users.picture ? `${baseUrl}/${post.users.picture}` : null, // Assuming profile picture is stored in `/uploads/`
+      },
+    }));
+    
+    res.status(200).json({ message: "Posts fetched successfully!", data: postsWithFullPictureUrl });
   }
   catch (error: any) {
     res.status(error?.cause || 500).json({ message: error?.message || "Internal server error", data: [] })
 
+  }
+}
+
+export async function getNumberOfPostsByUser(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new Error("Unauthorized", { cause: 401 });
+    }
+    const [count] = await db.select({ count: sql<number>`count(*)` }).from(postSchema).where(eq(postSchema.userId, userId));
+    res.status(200).json({ count: count.count });
+  }
+  catch (error: any) {
+    res.status(error?.cause || 500).json({ message: error?.message || "Internal server error", data: [] })
+
+  }
+}
+
+export async function getPostListByUser(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new Error("Unauthorized", { cause: 401 });
+    }
+    const posts = await db.select({ id: postSchema.id, title: postSchema.title }).from(postSchema).where(eq(postSchema.userId, userId));
+    res.status(200).json({ message: "Posts fetched successfully!", data: posts });
+  }
+  catch (error: any) {
+    res.status(error?.cause || 500).json({ message: error?.message || "Internal server error", data: [] })
+
+  }
+}
+
+export async function deletePost(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new Error("Unauthorized", { cause: 401 });
+    }
+    const postId = parseInt(req.params.id);
+    if (isNaN(postId)) {
+      throw new Error("Invalid post ID", { cause: 400 });
+    }
+    const post = await db.select().from(postSchema).where(and(eq(postSchema.id, postId), eq(postSchema.userId, userId)));
+    if (post.length === 0) {
+      throw new Error("Post not found", { cause: 404 });
+    }
+    await db.delete(postSchema).where(and(eq(postSchema.id, postId), eq(postSchema.userId, userId)));
+    res.status(200).json({ message: "Post deleted successfully!" });
+  }
+  catch (error: any) {
+    res.status(error?.cause || 500).json({ message: error?.message || "Internal server error" })
   }
 }

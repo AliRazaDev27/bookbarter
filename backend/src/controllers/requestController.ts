@@ -17,7 +17,7 @@ type SentRequest = {
 
 export async function createRequest(req: Request, res: Response) {
     try {
-        const senderId = await getCurrentUserId(req)
+        const senderId = req.user?.id
         if (!senderId) {
             throw new Error("Unauthorized", { cause: 401 });
         }
@@ -70,7 +70,7 @@ export async function createRequest(req: Request, res: Response) {
 
 export async function sentRequests(req: Request, res: Response) {
     try {
-        const id = await getCurrentUserId(req)
+        const id = req.user?.id
         if (!id) {
             throw new Error("Unauthorized", { cause: 401 });
         }
@@ -100,7 +100,7 @@ export async function sentRequests(req: Request, res: Response) {
 
 export async function receivedRequests(req: Request, res: Response) {
     try {
-        const id = await getCurrentUserId(req)
+        const id = req.user?.id
         if (!id) {
             throw new Error("Unauthorized", { cause: 401 });
         }
@@ -130,12 +130,12 @@ export async function receivedRequests(req: Request, res: Response) {
 
 export async function updateRequestStatus(req: Request, res: Response) {
     try {
-        const id = Number(req.params.id)
-        const { status, type } = req.body
-        const userId = await getCurrentUserId(req)
+        const userId = req.user?.id
         if (!userId) {
             throw new Error("Unauthorized", { cause: 401 });
         }
+        const id = Number(req.params.id)
+        const { status, type } = req.body
         if (!id) {
             throw new Error("Request ID not provided")
         }
@@ -275,7 +275,7 @@ export async function updateRequestStatus(req: Request, res: Response) {
 
 export async function sendProposal(req: Request, res: Response) {
     try {
-        const userId = await getCurrentUserId(req)
+        const userId = req.user?.id
         if (!userId) {
             throw new Error("Unauthorized", { cause: 401 });
         }

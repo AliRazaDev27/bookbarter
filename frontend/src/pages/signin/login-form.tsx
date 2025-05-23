@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useForm, SubmitHandler } from "react-hook-form"
+import { useDispatch } from "react-redux"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useNavigate } from "react-router"
@@ -16,6 +17,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { loginUser } from "@/api/queries/loginUser"
+import { getCurrentUser } from "@/api/queries/getCurrentUser"
+import { setUserData } from "@/store/features/user/userSlice"
 
 const schema = z.object({
   email: z.string()
@@ -45,6 +48,7 @@ export function LoginForm({
     resolver: zodResolver(schema)
   })
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const onSubmit: SubmitHandler<Schema> = async (data) => {
     const formData = new FormData()
@@ -60,6 +64,10 @@ export function LoginForm({
         duration: 2000,
         className: "bg-green-600 text-white",
       })
+      const user = await getCurrentUser();
+      if (!!user) {
+        dispatch(setUserData(user));
+      }
       navigate("/");
     }
     else if (result.status === 422) {

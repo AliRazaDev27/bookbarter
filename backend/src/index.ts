@@ -6,8 +6,9 @@ import userRoutes from './routes/userRoutes.ts'
 import authRoutes from './routes/authRoutes.ts'
 import postRoutes from './routes/postRoutes.ts';
 import requestRoutes from './routes/requestRoutes.ts';
-import { getCurrentUserId } from './utils/index.ts';
 import favoriteRoutes from './routes/favoriteRoutes.ts';
+import wishlistRoutes from './routes/wishlistRoutes.ts';
+import { getUser } from './middlewares/index.ts';
 
 dotenv.config()
 
@@ -54,16 +55,17 @@ app.use('/auth', authRoutes )
 app.use('/posts', postRoutes )
 app.use('/requests', requestRoutes )
 app.use('/favorites', favoriteRoutes )
+app.use('/wishlist', wishlistRoutes )
 
-app.get('/events', async(req, res) => {
-  const userId = await getCurrentUserId(req);
+app.get('/events', getUser ,async(req, res) => {
+  const userId = req.user?.id;
   res.set({
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
   });
   res.flushHeaders(); // flush headers to establish SSE
-  if(userId){
+  if(!!userId){
     signedClients.set(userId, res);
   }
   clients.push(res);

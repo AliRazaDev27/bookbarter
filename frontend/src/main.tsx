@@ -14,12 +14,11 @@ import { Header } from './pages/homepage/header'
 import { ServerEventHandler } from './pages/homepage/serverEventHanler'
 import { Profile } from './pages/profile'
 import { UserInfo } from './pages/profile/info'
+import { ViewPosts } from './pages/profile/post/viewPosts'
+import { ManagePosts } from './pages/profile/post/managePosts'
+import { ManageWishlist } from './pages/profile/wishlist/manageWishlist'
 
 const router = createBrowserRouter([
-  {
-    path: '/create_post',
-    element: <CreatePost />,
-  },
   {
     path: '/',
     element: <Header />,
@@ -38,6 +37,18 @@ const router = createBrowserRouter([
         element: <UserInfo />,
       },
       {
+        path: '/profile/posts/view',
+        element: <ViewPosts />,
+      },
+      {
+        path: '/profile/posts/manage',
+        element: <ManagePosts />,
+      },
+      {
+        path: '/profile/wishlist/manage',
+        element: <ManageWishlist />,
+      },
+      {
         path: '/signin',
         element: <SignIn />,
       },
@@ -48,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <Dashboard />,
+      },
+      {
+        path: '/create_post',
+        element: <CreatePost />,
       },
     ]
   },

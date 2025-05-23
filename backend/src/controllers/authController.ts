@@ -132,11 +132,23 @@ export async function logout(req: Request, res: Response) {
 }
 export async function session(req: Request, res: Response) {
   try {
-    const userId = await getCurrentUserId(req)
+    const userId = req.user?.id;
     if (!userId) {
       throw new Error("Unauthorized", { cause: 401 });
     }
-    const [user] = await db.select().from(userSchema).where(eq(userSchema.id, userId));
+    const [user] = await db.select({
+      id: userSchema.id,
+      firstName: userSchema.firstName,
+      lastName: userSchema.lastName,
+      username: userSchema.username,
+      email: userSchema.email,
+      mobileNo: userSchema.mobileNo,
+      address: userSchema.address,
+      picture: userSchema.picture,
+      status: userSchema.status,
+      role: userSchema.role,
+      createdAt: userSchema.createdAt,
+    }).from(userSchema).where(eq(userSchema.id, userId));
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     user.picture = `${baseUrl}/${user.picture}`
     res.status(200).json({ data: user });

@@ -1,21 +1,22 @@
 import { Outlet, Link } from "react-router";
 import { useEffect } from "react";
 import { IoNotifications } from "react-icons/io5";
-import { MdMessage,MdMenu } from "react-icons/md";
+import { MdMessage, MdMenu } from "react-icons/md";
 import { Profile } from "./profile";
 import { Requests } from "./requests";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { setUserData } from "@/store/features/user/userSlice";
 import { getCurrentUser } from "@/api/queries/getCurrentUser";
+import { useAppDispatch } from "@/hooks/redux";
 
 export function Header() {
-    const dispatch = useDispatch();
-    const user = useSelector((state: any) => state.user.data)
+    const dispatch = useAppDispatch()
+    const user = useSelector((state: any) => state.user)
     useEffect(() => {
         const getUser = async () => {
             const user = await getCurrentUser();
             if (!!user) {
-                dispatch(setUserData(user));
+                dispatch(setUserData(user))
             }
         }
         getUser();
@@ -29,7 +30,10 @@ export function Header() {
             {/* very bad method */}
             <nav id="header" className="fixed top-0 border-b bg-white z-50 w-full flex justify-between items-center px-4 py-1 md:px-8 md:py-2">
                 <div>
-                    <span className="max-lg:hidden">Logo</span>
+                    <Link to="/" className="max-lg:hidden hover:border-b hover:cursor-pointer hover:border-black">
+                        <span className="text-2xl font-bold italic text-orange-500">Book</span>
+                        <span className="text-xl font-semibold italic">Barter</span>
+                    </Link>
                     <button onClick={toggleFilterSidebar} className="lg:hidden">
                         <MdMenu className="text-2xl" />
                     </button>

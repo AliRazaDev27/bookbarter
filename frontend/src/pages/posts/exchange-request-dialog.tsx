@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react"
-import { Book, Clock, MapPin, CalendarIcon, Repeat } from "lucide-react"
-import { format, startOfDay } from "date-fns"
+import { Book , Repeat } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -16,10 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
 import axios from "axios"
 import { useToast } from "@/hooks/use-toast"
-import { send } from "process"
 import { sendRequest } from "@/api/mutations/sendRequest"
 
 interface ExchangeRequestData {
@@ -64,14 +60,14 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
     }
     useEffect(() => {
         const userBooks = async () => {
-            const response = await axios.get(`http://localhost:3000/posts/user`,
+            const response = await axios.get(`http://localhost:3000/posts/user/list`,
                 {
                     withCredentials: true
                 }
             )
             const result = await response.data
             setUserBooks(result.data)
-            console.log('request')
+            console.log(result.data)
         }
         if (data.type === "barter") {
             userBooks()
@@ -91,7 +87,7 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
                 <DialogHeader>
                     <DialogTitle>Request Exchange</DialogTitle>
                     <DialogDescription>
-                        <span className="sr-only">description</span>
+                        <span className="sr-only">Send a request to exchange this book.</span>
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-0">
@@ -122,7 +118,7 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
                             </SelectTrigger>
                             <SelectContent>
                                 {userBooks.map((book: any) => (
-                                    <SelectItem key={book.id} value={book.id}>
+                                    <SelectItem key={`book-offered-${book.id}`} value={book.id}>
                                         {book.title}
                                     </SelectItem>
                                 ))}
