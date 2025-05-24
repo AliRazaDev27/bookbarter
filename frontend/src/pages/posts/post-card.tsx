@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,8 +6,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Heart, MessageCircle, Clock , BookOpen, Trophy } from "lucide-react"
 import { ExchangeRequestDialog } from "./exchange-request-dialog"
-import axios from "axios"
 import { toggleFavorite } from "@/api/favorites"
+import { useAppSelector } from "@/hooks/redux"
 
 interface PostCardProps {
   post: {
@@ -38,6 +37,8 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, user }: PostCardProps) {
+
+  const currentUser = useAppSelector((state) => state.user.data);
 
   // Format date to be more readable
   const formatDate = (dateString: string) => {
@@ -177,7 +178,7 @@ export default function PostCard({ post, user }: PostCardProps) {
       </CardContent>
 
       <CardFooter className="flex justify-between items-center bg-neutral-100/20 p-3 border-t dark:bg-neutral-800/20">
-        <Button variant="ghost" size="sm" onClick={handleToggleFavorite} className="flex items-center">
+        <Button variant="ghost" size="sm" onClick={handleToggleFavorite} disabled={!currentUser} className="flex items-center">
           <Heart className={`h-4 w-4 mr-1 ${post?.isFav ? "fill-rose-500 text-rose-500" : ""}`} />
           <span>{post?.favCount}</span>
         </Button>
@@ -196,7 +197,7 @@ export default function PostCard({ post, user }: PostCardProps) {
           } />
         </div>
 
-        <Button variant="ghost" size="sm" className="flex items-center">
+        <Button variant="ghost" size="sm" className="flex items-center" disabled={!currentUser}>
           <MessageCircle className="h-4 w-4 mr-1" />
           <span className="max-md:hidden">Message</span>
         </Button>

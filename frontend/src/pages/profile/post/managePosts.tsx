@@ -1,4 +1,4 @@
-import { useSelector,useDispatch } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import {
     Table,
     TableBody,
@@ -7,21 +7,20 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { MdDelete, MdOutlineCreate } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 import { deletePost } from "@/api/post";
 import { useToast } from "@/hooks/use-toast";
-import { deleteUserPost} from "@/store/features/userPosts/userPostSlice";
+import { deleteUserPost } from "@/store/features/userPosts/userPostSlice";
 import { useState } from "react";
-import { parse } from "path";
-import { Button } from "@/components/ui/button";
 import { CreatePost } from "@/pages/createPost";
-
-
+import { Link } from "react-router";
+import { IoReturnUpBackOutline } from "react-icons/io5";
 
 export function ManagePosts() {
     const posts = useSelector((state: any) => state.userPosts.data) as []
+    console.log(posts);
     const [loading, setLoading] = useState(false)
-    const {toast} = useToast()
+    const { toast } = useToast()
     const dispatch = useDispatch()
     const handleDelete = async (index: number) => {
         try {
@@ -53,8 +52,11 @@ export function ManagePosts() {
     return (
         <div className="pt-20 pb-8 px-2 md:px-4">
             <div className="mb-6 flex items-center justify-between">
+                <Link to="/profile" className="hover:bg-gray-300 rounded-lg p-2">
+                <IoReturnUpBackOutline className="h-8 w-8"/>
+                </Link>
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-neutral-700">Manage Posts</h1>
-<CreatePost/>
+                <CreatePost />
             </div>
             <div className="w-full border">
                 <Table>
@@ -91,13 +93,22 @@ export function ManagePosts() {
                                     <TableCell>{post.post.status}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center justify-center">
-                                            <button disabled={loading} onClick={() => {handleDelete(index)}} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
-                                                <MdDelete className="text-xl"/>
+                                            <button disabled={loading} onClick={() => { handleDelete(index) }} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                                                <MdDelete className="text-xl" />
                                             </button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ))
+                        }
+                        {
+                            posts.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={12} className="bg-gray-200 h-24 text-center md:text-lg font-medium">
+                                        No posts found.
+                                    </TableCell>
+                                </TableRow>
+                            )
                         }
                     </TableBody>
                 </Table>

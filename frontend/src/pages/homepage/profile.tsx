@@ -14,19 +14,20 @@ export function Profile() {
                 <AvatarFallback>ME</AvatarFallback>
             </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <section>
+                <DropdownMenuContent className="border border-neutral-300 shadow-xl mt-2 me-2">
+                    <section className="">
                         <ul>
                             { user?.role === "admin" &&
                             <li>
-                                <Link to="/dashboard" className="px-4 py-2 block hover:bg-gray-100">Dashboard</Link>
+                                <Link to="/dashboard" className="font-medium px-4 py-2 text-center block hover:bg-gray-200">Dashboard</Link>
                             </li>
                             }
                             <li>
-                                <Link to="/profile" className="px-4 py-2 block hover:bg-gray-100">Profile</Link>
+                                <Link to="/profile" className="font-medium text-center px-4 py-2 block hover:bg-gray-200">Profile</Link>
                             </li>
+                            <hr/>
                             <li>
-                                <button className="w-full text-start px-4 py-2 block hover:bg-gray-100">Logout</button>
+                                <button className="w-full font-medium text-center px-4 py-2 block hover:bg-gray-200">Logout</button>
                             </li>
                         </ul>
 

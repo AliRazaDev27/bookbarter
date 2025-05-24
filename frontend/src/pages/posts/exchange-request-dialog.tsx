@@ -18,6 +18,7 @@ import axios from "axios"
 import { useToast } from "@/hooks/use-toast"
 import { sendRequest } from "@/api/request"
 import { getPostList } from "@/api/post"
+import { useAppSelector } from "@/hooks/redux"
 
 interface ExchangeRequestData {
     postID?: number; // Made optional
@@ -30,7 +31,7 @@ interface ExchangeRequestData {
     bookList: string; // Kept as is, was already handled in post-card
 }
 export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
-    // This should be passed as a prop
+    const currentUser = useAppSelector((state) => state.user.data);
     const [loading, setLoading] = useState(false)
     const { toast } = useToast()
     const [userBooks, setUserBooks] = useState<[]>([])
@@ -73,7 +74,7 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost">
+                <Button variant="ghost" disabled={!currentUser}>
                     <Repeat className="h-4 w-4 mr-1" />
                     <span className="max-md:hidden">
                         Exchange
