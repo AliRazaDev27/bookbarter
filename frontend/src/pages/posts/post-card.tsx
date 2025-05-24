@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Heart, MessageCircle, Clock , BookOpen, Trophy } from "lucide-react"
 import { ExchangeRequestDialog } from "./exchange-request-dialog"
 import axios from "axios"
+import { toggleFavorite } from "@/api/favorites"
 
 interface PostCardProps {
-  post?: {
+  post: {
     id: number
     userId: number
     title: string
@@ -29,7 +30,7 @@ interface PostCardProps {
     isFav: boolean,
     favCount: number,
   }
-  user?: {
+  user: {
     id: number
     username: string
     picture: string
@@ -48,10 +49,10 @@ export default function PostCard({ post, user }: PostCardProps) {
   }
 
   // Handle favorite toggle
-  const toggleFavorite = async() => {
+  const handleToggleFavorite = async() => {
     try{
-      const response = await axios.put(`http://localhost:3000/favorites/toggle/${post?.id}`,{},{withCredentials:true})
-      console.log(response.data)
+      if(post)
+      await toggleFavorite(post?.id)
     }
     catch(error:any){
      console.log(error) 
@@ -176,7 +177,7 @@ export default function PostCard({ post, user }: PostCardProps) {
       </CardContent>
 
       <CardFooter className="flex justify-between items-center bg-neutral-100/20 p-3 border-t dark:bg-neutral-800/20">
-        <Button variant="ghost" size="sm" onClick={toggleFavorite} className="flex items-center">
+        <Button variant="ghost" size="sm" onClick={handleToggleFavorite} className="flex items-center">
           <Heart className={`h-4 w-4 mr-1 ${post?.isFav ? "fill-rose-500 text-rose-500" : ""}`} />
           <span>{post?.favCount}</span>
         </Button>

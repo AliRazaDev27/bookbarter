@@ -7,15 +7,15 @@ import axios from "axios";
 import { Link } from "react-router"
 import { setUserPosts } from "@/store/features/userPosts/userPostSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { getPostByUser } from "@/api/post";
 export function PostCard() {
     const posts = useSelector((state:any) => state.userPosts.data) as []
     const dispatch = useDispatch()
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/posts/user", { withCredentials: true })
-                console.log("Posts:", response.data)
-                dispatch(setUserPosts(response.data.data))
+                const response = await getPostByUser();
+                dispatch(setUserPosts(response))
             } catch (error) {
                 console.error("Error fetching posts:", error)
             }

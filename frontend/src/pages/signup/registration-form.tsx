@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
-import { registerUser } from "@/api/mutations/registerUser"
+import { registerUser } from "@/api/user"
 
 const schema = z.object({
   firstName: z.string()

@@ -1,4 +1,4 @@
-import { getPostById } from "@/api/mutations/posts";
+import { getPostById } from "@/api/post";
 import { IPost } from "@/types";
 import { useLoaderData } from "react-router";
 import PostCard from "../posts/post-card";

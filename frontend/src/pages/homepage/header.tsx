@@ -6,7 +6,7 @@ import { Profile } from "./profile";
 import { Requests } from "./requests";
 import { useSelector } from "react-redux";
 import { setUserData } from "@/store/features/user/userSlice";
-import { getCurrentUser } from "@/api/queries/getCurrentUser";
+import { getCurrentUser } from "@/api/user";
 import { useAppDispatch } from "@/hooks/redux";
 import { Notifications } from "./notifications";
 

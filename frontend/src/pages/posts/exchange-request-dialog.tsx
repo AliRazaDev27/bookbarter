@@ -16,7 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import axios from "axios"
 import { useToast } from "@/hooks/use-toast"
-import { sendRequest } from "@/api/mutations/sendRequest"
+import { sendRequest } from "@/api/request"
+import { getPostList } from "@/api/post"
 
 interface ExchangeRequestData {
     postID?: number; // Made optional
@@ -60,14 +61,10 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
     }
     useEffect(() => {
         const userBooks = async () => {
-            const response = await axios.get(`http://localhost:3000/posts/user/list`,
-                {
-                    withCredentials: true
-                }
-            )
-            const result = await response.data
-            setUserBooks(result.data)
-            console.log(result.data)
+            const response = await getPostList()
+            if(!!response){
+            setUserBooks(response)
+            }
         }
         if (data.type === "barter") {
             userBooks()

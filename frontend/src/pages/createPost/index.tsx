@@ -8,11 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { bookConditionEnum, bookCategoryEnum, exchangeTypeEnum, currencyEnum, languageEnum } from '@/zodSchemas/post';
 import { postZodSchema } from '@/zodSchemas/post';
-import { createPost } from '@/api/mutations/createPost';
+import { createPost } from '@/api/post';
 import { useState } from 'react';
 import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
-import { Link } from 'react-router';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { MdOutlineCreate } from 'react-icons/md';
 

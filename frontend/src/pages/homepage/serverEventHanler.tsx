@@ -8,13 +8,13 @@ export function ServerEventHandler() {
     const sentRequest = useSelector((state: any) => state.sentRequests.data)
     const receivedRequest = useSelector((state: any) => state.receivedRequests.data)
     useEffect(() => {
-        const eventSource = new EventSource('http://localhost:3000/events', { withCredentials: true });
+        const eventSource = new EventSource(`${import.meta.env.VITE_BACKEND_URL}/events`, { withCredentials: true });
 
         eventSource.addEventListener('refetchrequests', (event) => {
             if (event.data === "sent") {
                 try {
                     const sentRequests = async () => {
-                        const response = await axios.get(`http://localhost:3000/requests/sent`, { withCredentials: true })
+                        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/requests/sent`, { withCredentials: true })
                         const result = await response.data
                         dispatch(setSentRequests(result.data))
                     }
@@ -27,7 +27,7 @@ export function ServerEventHandler() {
             else if (event.data === "received") {
                 try {
                     const receivedRequests = async () => {
-                        const response = await axios.get(`http://localhost:3000/requests/received`, { withCredentials: true })
+                        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/requests/received`, { withCredentials: true })
                         const result = await response.data
                         dispatch(setReceivedRequests(result.data))
                     }

@@ -16,9 +16,9 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { MdArchive, MdBackspace } from "react-icons/md";
 import { MdAssignmentLate } from "react-icons/md";
 import { IoReturnUpBackOutline } from "react-icons/io5";
+import { getReceivedRequests, getSentRequests, sendProposal, updateRequestStatus } from "@/api/request"
 
 
 
@@ -37,16 +37,16 @@ export function Requests() {
     }
     useEffect(() => {
         const sentRequests = async () => {
-            const response = await axios.get(`http://localhost:3000/requests/sent`, { withCredentials: true })
-            const result = await response.data
-            console.log(result)
-            dispatch(setSentRequests(result.data))
+            const response = await getSentRequests()
+            if(!!response){
+            dispatch(setSentRequests(response))
+            }
         }
         const receivedRequests = async () => {
-            const response = await axios.get(`http://localhost:3000/requests/received`, { withCredentials: true })
-            const result = await response.data
-            console.log(result)
-            dispatch(setReceivedRequests(result.data))
+            const response = await getReceivedRequests()  
+            if(!!response){
+            dispatch(setReceivedRequests(response))
+            }
         }
         sentRequests()
         receivedRequests()
@@ -241,13 +241,13 @@ export function DetailView({ index, type }: { index: number, type: "sent" | "rec
 
 }
 
-export function AllowedActions({ id, type, state }: { id: string, type: "sent" | "received", state: "pending" | "cancelled" | "rejected" | "proposed" | "confirmed" | "expired" | "completed" }) {
+export function AllowedActions({ id, type, state }: { id: number, type: "sent" | "received", state: "pending" | "cancelled" | "rejected" | "proposed" | "confirmed" | "expired" | "completed" }) {
     const locationRef = useRef<HTMLInputElement>(null);
     const dateRef = useRef<HTMLInputElement>(null);
     const timeRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
 
-    const sendProposal = async () => {
+    const handleSendProposal = async () => {
         try {
             const location = locationRef?.current?.value
             const date = dateRef?.current?.value
@@ -255,13 +255,8 @@ export function AllowedActions({ id, type, state }: { id: string, type: "sent" |
             console.log(location, date, time)
             if (!location || !date || !time) return
             setLoading(true)
-            const response = await axios.put(`http://localhost:3000/requests/sendProposal/${id}`, {
-                location,
-                date,
-                time,
-            }, { withCredentials: true })
+            await sendProposal(id, location, date, time)
             setLoading(false)
-            console.log(response.data)
         }
         catch (error) {
             console.log(error)
@@ -270,9 +265,8 @@ export function AllowedActions({ id, type, state }: { id: string, type: "sent" |
     const statusHandler = async ({ status }: { status: "cancelled" | "confirmed" | "rejected" | "completed" }) => {
         try {
             setLoading(true)
-            const response = await axios.put(`http://localhost:3000/requests/status/${id}`, { type, status }, { withCredentials: true })
+            await updateRequestStatus(id,type,status);
             setLoading(false)
-            console.log(response.data)
         }
         catch (error: any) {
             console.log(error)
@@ -307,7 +301,7 @@ export function AllowedActions({ id, type, state }: { id: string, type: "sent" |
             </div>
             <div className="flex gap-2 justify-center">
                 <Button disabled={loading} onClick={() => statusHandler({ status: "rejected" })}>Reject</Button>
-                <Button disabled={loading} onClick={sendProposal} className="bg-green-600">Accept</Button>
+                <Button disabled={loading} onClick={handleSendProposal} className="bg-green-600">Accept</Button>
             </div>
         </div>
         else if (state === "proposed") return <div className="flex gap-2 justify-center">

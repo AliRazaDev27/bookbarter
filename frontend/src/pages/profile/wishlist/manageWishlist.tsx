@@ -9,7 +9,7 @@ import {
 import { MdDelete } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { deleteWishlist, getWishlist } from "@/api/mutations/wishlist";
+import { deleteWishlist, getWishlist } from "@/api/wishlist";
 import { useToast } from "@/hooks/use-toast";
 import { IoMdRefreshCircle } from "react-icons/io";
 import { CreateWishlist } from "./createWishlist";

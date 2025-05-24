@@ -16,8 +16,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { loginUser } from "@/api/queries/loginUser"
-import { getCurrentUser } from "@/api/queries/getCurrentUser"
+import { loginUser } from "@/api/user"
+import { getCurrentUser } from "@/api/user"
 import { setUserData } from "@/store/features/user/userSlice"
 
 const schema = z.object({

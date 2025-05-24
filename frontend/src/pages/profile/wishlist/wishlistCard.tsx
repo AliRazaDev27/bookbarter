@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import {  Settings } from "lucide-react"
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { countWishlist } from "@/api/mutations/wishlist";
+import { countWishlist } from "@/api/wishlist";
 export function WishlistCard(){
   const [wishlistCount, setWishlistCount] = useState(0)
   useEffect(() => {

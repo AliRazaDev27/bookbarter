@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { MdDelete, MdOutlineCreate } from "react-icons/md";
-import { deletePost } from "@/api/mutations/posts";
+import { deletePost } from "@/api/post";
 import { useToast } from "@/hooks/use-toast";
 import { deleteUserPost} from "@/store/features/userPosts/userPostSlice";
 import { useState } from "react";

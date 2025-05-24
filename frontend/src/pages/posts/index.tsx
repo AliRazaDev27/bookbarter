@@ -2,7 +2,7 @@ import PostCard from "./post-card";
 import { FilterSidebar } from "./filter-sidebar";
 import { useLoaderData } from "react-router";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getPosts } from "../../api/queries/getPosts"; // Assuming this path is correct
+import { getPosts } from "@/api/post"; // Assuming this path is correct
 import { useSearchParams } from "react-router";
 
 export function Posts() {

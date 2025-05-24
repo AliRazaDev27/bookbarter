@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useRef,useState } from "react";
 import { MdOutlineCreate } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
-import { createWishlist } from "@/api/mutations/wishlist";
+import { createWishlist } from "@/api/wishlist";
 
 export function CreateWishlist() {
     const titleRef = useRef<HTMLInputElement>(null);

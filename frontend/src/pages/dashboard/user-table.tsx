@@ -1,6 +1,3 @@
-"use client"
-
-import axios from "axios"
 import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -8,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import {useToast} from "@/hooks/use-toast"
+import { getAllUsers, updateUserStatus } from "@/api/user"
 
 // Define the User type
 type User = {
@@ -62,25 +60,18 @@ export function UsersTable() {
     }
 
     const updateStatus = async (userId: string, status: "unverified" | "active" | "blocked") => {
-        try {
-            const result = await axios.post("http://localhost:3000/users/updateStatus", {
-                userId,
-                status
-            })
-            if (result.data.success) {
-                return true;
-            }
-        } catch (error) {
-            return false;
-        }
+            const response = await updateUserStatus(userId, status)
+            return response;
     }
 
     useEffect(() => {
-        axios.get("http://localhost:3000/users/getAllUsers",{withCredentials:true}).then((response) => {
-            if(response.data.success) {
-            setUserData(response.data.data)
+        const fetchUsers = async () => {
+            const response = await getAllUsers();
+            if(!!response){
+            setUserData(response);
+            }
         }
-        })
+        fetchUsers()
     }, [])
 
     return (
