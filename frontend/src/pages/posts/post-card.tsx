@@ -15,11 +15,11 @@ interface PostCardProps {
     userId: number
     title: string
     author: string
-    description: string
+    description: string|null
     category: string
     bookCondition: string
     exchangeType: string
-    exchangeCondition: string
+    exchangeCondition: string|null
     price: string
     currency: string
     locationApproximate: string
@@ -27,7 +27,7 @@ interface PostCardProps {
     status: string
     createdAt: string
     isFav: boolean,
-    favCount: string,
+    favCount: number,
   }
   user?: {
     id: number

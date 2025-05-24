@@ -50,6 +50,13 @@
       "when": 1747748293630,
       "tag": "0006_wild_slyde",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1748057444917,
+      "tag": "0007_famous_gorgon",
+      "breakpoints": true
     }
   ]
 }

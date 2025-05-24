@@ -1,6 +1,9 @@
 import fs from "fs/promises";
-import type { Request } from "express";
+import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { getWishlistByTitleAndAuthor } from "../controllers/wishlistController.ts";
+import { createNotification } from "../controllers/notificationController.ts";
+
 export async function cleanUpFiles(files: Express.Multer.File | Express.Multer.File[]) {
   const filesArray = Array.isArray(files) ? files : [files];
   for (const file of filesArray) {
@@ -11,6 +14,7 @@ export async function cleanUpFiles(files: Express.Multer.File | Express.Multer.F
     }
   }
 }
+
 export async function getCurrentUserId(req:Request){
   try{
     const token = req.cookies["auth-token"];
@@ -25,6 +29,22 @@ export async function getCurrentUserId(req:Request){
   }
   catch (error) {
     console.error("Error getting current user ID:", error);
+    return null;
+  }
+}
+
+export async function notificationGenerator(postId: number,title: string, author:string){
+  try{
+    const wishlist = await getWishlistByTitleAndAuthor(title, author);
+    if(!!wishlist && wishlist.length > 0){
+      wishlist.forEach(async (item) => {
+        await createNotification(item.userId, postId, `${title} by ${author}`);
+      });
+    }
+    return null;
+  }
+  catch(error:any){
+    console.log("notificationGenerator:",error);
     return null;
   }
 }

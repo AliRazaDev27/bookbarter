@@ -3,12 +3,14 @@ import counterReducer from "./features/user/userSlice"
 import  sentRequestSlice  from './features/request/sentRequestSlice'
 import receivedRequestSlice from './features/request/receivedRequestSlice'
 import  userPostSlice  from './features/userPosts/userPostSlice'
+import notificationSlice from './features/notifications/notificationSlice'
 const store = configureStore({
   reducer: {
     user: counterReducer,
     sentRequests: sentRequestSlice,
     receivedRequests: receivedRequestSlice,
     userPosts: userPostSlice,
+    notifications: notificationSlice,
   }
 })
 

@@ -19,3 +19,36 @@ export interface IWishlist {
     createdAt: string;
     updatedAt: string;
 }
+
+export interface INotification {
+    id: number;
+    postId: number;
+    notification: string;
+    isRead: boolean;
+    image: string;
+    createdAt: string;
+}
+
+export interface IPost {
+    id: number;
+    author: string;
+    title: string;
+    bookCondition: string;
+    exchangeType: string;
+    exchangeCondition: string|null;
+    description: string|null;
+    price: string;
+    createdAt: string;
+    updatedAt: string;
+    userId: number;
+    status: string;
+    locationApproximate: string;
+    language: string;
+    isPublic: boolean;
+    isFav: boolean;
+    isDeleted: boolean;
+    favCount: number;
+    images: string[];
+    category: string;
+    currency: string;
+}

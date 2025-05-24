@@ -9,6 +9,7 @@ import requestRoutes from './routes/requestRoutes.ts';
 import favoriteRoutes from './routes/favoriteRoutes.ts';
 import wishlistRoutes from './routes/wishlistRoutes.ts';
 import { getUser } from './middlewares/index.ts';
+import notificationRoutes from './routes/notificationRoutes.ts';
 
 dotenv.config()
 
@@ -56,6 +57,7 @@ app.use('/posts', postRoutes )
 app.use('/requests', requestRoutes )
 app.use('/favorites', favoriteRoutes )
 app.use('/wishlist', wishlistRoutes )
+app.use('/notifications', notificationRoutes)
 
 app.get('/events', getUser ,async(req, res) => {
   const userId = req.user?.id;

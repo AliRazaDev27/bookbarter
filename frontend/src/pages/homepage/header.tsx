@@ -8,10 +8,11 @@ import { useSelector } from "react-redux";
 import { setUserData } from "@/store/features/user/userSlice";
 import { getCurrentUser } from "@/api/queries/getCurrentUser";
 import { useAppDispatch } from "@/hooks/redux";
+import { Notifications } from "./notifications";
 
 export function Header() {
     const dispatch = useAppDispatch()
-    const user = useSelector((state: any) => state.user)
+    const user = useSelector((state: any) => state.user.data)
     useEffect(() => {
         const getUser = async () => {
             const user = await getCurrentUser();
@@ -43,7 +44,7 @@ export function Header() {
                         <div>
                             <ul className="flex items-center gap-4 md:gap-6">
                                 <li>
-                                    <IoNotifications className="text-xl" />
+                                    <Notifications />
                                 </li>
                                 <li>
                                     <MdMessage className="text-xl" />

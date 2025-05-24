@@ -5,7 +5,7 @@ import { postZodSchema } from '../config/zodSchemas/postZodSchema.ts';
 import { db } from '../config/db.ts';
 import { and, eq, desc, asc, gte, lte, ilike, inArray, SQL, sql } from 'drizzle-orm';
 import fs from 'fs/promises';
-import { cleanUpFiles } from '../utils/index.ts';
+import { cleanUpFiles, notificationGenerator } from '../utils/index.ts';
 import { userSchema } from '../models/user.ts';
 
 export async function createPost(req: Request, res: Response) {
@@ -67,6 +67,7 @@ export async function createPost(req: Request, res: Response) {
       if (newPost.length === 0) {
         throw new Error("Failed to create post", { cause: 500 });
       }
+      notificationGenerator(newPost[0].id,newPost[0].title, newPost[0].author);
       res.status(201).json({ message: "Post created successfully!", data: newPost[0] });
     }
   } catch (error: any) {
@@ -291,5 +292,54 @@ export async function deletePost(req: Request, res: Response) {
   }
   catch (error: any) {
     res.status(error?.cause || 500).json({ message: error?.message || "Internal server error" })
+  }
+}
+
+export async function getPostById(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id; // Optional: to check if the current user has favorited the post
+    const postId = parseInt(req.params.id);
+
+    if (isNaN(postId)) {
+      throw new Error("Invalid post ID", { cause: 400 });
+    }
+
+    const post = await db.select({
+      posts: postSchema,
+      users: userSchema,
+      isFav: userId ? sql<boolean>`COALESCE(
+            (
+      SELECT ${favoriteSchema.isFav}
+    FROM ${favoriteSchema}
+    WHERE ${favoriteSchema.userId} = ${userId}
+    AND ${favoriteSchema.postId} = ${postSchema.id}
+    LIMIT 1
+      ),false
+          )`.as('isFav')
+        : sql<boolean>`false`.as('isFav'),
+    }).from(postSchema).where(eq(postSchema.id, postId)).innerJoin(userSchema, eq(postSchema.userId, userSchema.id));
+
+    if (post.length === 0) {
+      throw new Error("Post not found", { cause: 404 });
+    }
+
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const postWithFullPictureUrl = {
+      post: {
+        ...post[0].posts,
+        images: post[0].posts.images.map((image) => `${baseUrl}/${image}`),
+        isFav: post[0].isFav,
+      },
+      user: {
+        id: post[0].users.id,
+        username: post[0].users.username,
+        picture: post[0].users.picture ? `${baseUrl}/${post[0].users.picture}` : null,
+      },
+    };
+
+    res.status(200).json({ message: "Post fetched successfully!", data: postWithFullPictureUrl });
+  }
+  catch (error: any) {
+    res.status(error?.cause || 500).json({ message: error?.message || "Internal server error", data: [] })
   }
 }

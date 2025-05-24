@@ -17,6 +17,8 @@ import { UserInfo } from './pages/profile/info'
 import { ViewPosts } from './pages/profile/post/viewPosts'
 import { ManagePosts } from './pages/profile/post/managePosts'
 import { ManageWishlist } from './pages/profile/wishlist/manageWishlist'
+import { Post } from './pages/post'
+import { loader as postLoader } from './pages/post'
 
 const router = createBrowserRouter([
   {
@@ -27,6 +29,12 @@ const router = createBrowserRouter([
         index: true,
         element: <Posts />,
         loader: loader,
+      },
+      {
+        path: '/post/:id',
+        element: <Post/>,
+        loader: postLoader
+
       },
       {
         path: '/profile',

@@ -12,13 +12,13 @@ export function Profile() {
   return (
     <div className="bg-gradient-to-b from-[#565656] to-[#181818] w-full min-h-screen">
       {
-        !user.id && <div className="min-h-screen flex flex-col items-center justify-center gap-8 ">
+        !user && <div className="min-h-screen flex flex-col items-center justify-center gap-8 ">
           <h1 className="text-3xl text-white/80 font-semibold">You are not Logged in, Please Login first.</h1>
           <Link to="/signin" className="bg-black hover:bg-green-700 transition-colors duration-300 shadow-sm text-white px-4 py-2 rounded-xl">Login</Link>
         </div>
       }
       {
-        !!user.id &&
+        !!user &&
         <div className="min-h-screen pt-8 md:pt-12 bg-muted/40">
           <div className="container mx-auto py-8 px-2">
             <div className="mb-8 flex items-center justify-between">

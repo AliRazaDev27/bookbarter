@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { db } from "../config/db.ts";
 import { wishlistSchema } from "../models/wishlist.ts";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, or } from "drizzle-orm";
 export async function createWishlist(req: Request, res: Response) {
     try {
         const userId = req.user?.id;
@@ -24,7 +24,7 @@ export async function createWishlist(req: Request, res: Response) {
             }).returning();
             return newWishlist;
         })
-        res.status(201).json({message: "Wishlist created successfully", data: newWishlist });
+        res.status(201).json({ message: "Wishlist created successfully", data: newWishlist });
     } catch (error: any) {
         console.error("Error creating wishlist:", error);
         res.status(error?.cause || 500).json({ message: error.message, data: null });
@@ -32,13 +32,13 @@ export async function createWishlist(req: Request, res: Response) {
 }
 
 export async function getWishlist(req: Request, res: Response) {
-    try{
+    try {
         const userId = req.user?.id;
         if (!userId) {
             throw new Error("Unauthorized", { cause: 401 });
         }
         const wishlists = await db.select().from(wishlistSchema).where(eq(wishlistSchema.userId, userId));
-        res.status(200).json({message: "Wishlists fetched successfully", data: wishlists });
+        res.status(200).json({ message: "Wishlists fetched successfully", data: wishlists });
     }
     catch (error: any) {
         console.log("createWishlist", error);
@@ -52,7 +52,7 @@ export async function deleteWishlist(req: Request, res: Response) {
         if (!userId) {
             throw new Error("Unauthorized", { cause: 401 });
         }
-        const id  = Number(req.params.id);
+        const id = Number(req.params.id);
         if (!id) {
             throw new Error("Wishlist ID is required", { cause: 400 });
         }
@@ -60,10 +60,10 @@ export async function deleteWishlist(req: Request, res: Response) {
         if (deletedWishlist.length === 0) {
             throw new Error("Wishlist not found", { cause: 404 });
         }
-        res.status(200).json({ message: "Wishlist deleted successfully"});
+        res.status(200).json({ message: "Wishlist deleted successfully" });
     } catch (error: any) {
         console.error("Error deleting wishlist:", error);
-        res.status(error?.cause || 500).json({ message: error.message});
+        res.status(error?.cause || 500).json({ message: error.message });
     }
 }
 
@@ -78,5 +78,20 @@ export async function getWishlistCount(req: Request, res: Response) {
     } catch (error: any) {
         console.error("Error fetching wishlist count:", error);
         res.status(error?.cause || 500).json({ message: error.message, data: null });
+    }
+}
+
+export async function getWishlistByTitleAndAuthor(title: string, author: string) {
+    try {
+        const wishlist = await db.select().from(wishlistSchema).where(
+            or(
+                eq(wishlistSchema.title, title),
+                eq(wishlistSchema.author, author)
+            )
+        );
+        return wishlist;
+    } catch (error: any) {
+        console.error("Error fetching wishlist by title and author:", error);
+        return null;
     }
 }
