@@ -152,6 +152,9 @@ export async function getPosts(req: Request, res: Response) {
       conditions.push(eq(postSchema.exchangeType, exchangeType as typeof postSchema.exchangeType.enumValues[number]));
     }
 
+    conditions.push(eq(postSchema.isDeleted, false));
+    conditions.push(eq(postSchema.status, "available")); // Assuming you want to filter by available posts
+
     if (conditions.length > 0) {
       query.where(and(...conditions));
     }
@@ -163,8 +166,7 @@ export async function getPosts(req: Request, res: Response) {
       else if (sortBy === 'date_asc') orderByClause = asc(postSchema.createdAt);
       else if (sortBy === 'date_desc') orderByClause = desc(postSchema.createdAt);
     }
-    // query = query.orderBy(orderByClause); // This was a mistake in my plan, query.orderBy doesn't take query as first arg
-    // Correct way:
+
     query.orderBy(orderByClause);
 
 
@@ -220,7 +222,7 @@ export async function getPostsByUser(req: Request, res: Response) {
       ),false
           )`.as('isFav')
         : sql<boolean>`false`.as('isFav'),
-    }).from(postSchema).where(eq(postSchema.userId, userId)).innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    }).from(postSchema).where(and(eq(postSchema.userId, userId),eq(postSchema.isDeleted, false))).innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const postsWithFullPictureUrl = posts.map(post => ({
       post: {
@@ -264,7 +266,7 @@ export async function getPostListByUser(req: Request, res: Response) {
     if (!userId) {
       throw new Error("Unauthorized", { cause: 401 });
     }
-    const posts = await db.select({ id: postSchema.id, title: postSchema.title }).from(postSchema).where(eq(postSchema.userId, userId));
+    const posts = await db.select({ id: postSchema.id, title: postSchema.title }).from(postSchema).where(and(eq(postSchema.userId, userId),eq(postSchema.isDeleted, false),eq(postSchema.status,"available"))).orderBy(desc(postSchema.createdAt));
     res.status(200).json({ message: "Posts fetched successfully!", data: posts });
   }
   catch (error: any) {
@@ -317,7 +319,7 @@ export async function getPostById(req: Request, res: Response) {
       ),false
           )`.as('isFav')
         : sql<boolean>`false`.as('isFav'),
-    }).from(postSchema).where(eq(postSchema.id, postId)).innerJoin(userSchema, eq(postSchema.userId, userSchema.id));
+    }).from(postSchema).where(and(eq(postSchema.id, postId),eq(postSchema.isDeleted, false))).innerJoin(userSchema, eq(postSchema.userId, userSchema.id));
 
     if (post.length === 0) {
       throw new Error("Post not found", { cause: 404 });
