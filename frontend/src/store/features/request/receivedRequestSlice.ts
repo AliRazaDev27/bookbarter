@@ -22,11 +22,15 @@ export const receivedRequestSlice = createSlice({
       state.data[index].exchange_requests.date = action.payload.date
       state.data[index].exchange_requests.time = action.payload.time
     },
+    removeReceivedRequest: (state, action) => {
+      state.data = state.data.filter((request: any) => request.exchange_requests.id !== action.payload.requestId)
+    }
+
   }
 })
 
 // Action creators are generated for each case reducer function
 
-export const { setReceivedRequests, updateReceivedRequestStatus,updateReceivedRequestDetails } = receivedRequestSlice.actions
+export const { setReceivedRequests, updateReceivedRequestStatus,updateReceivedRequestDetails,removeReceivedRequest } = receivedRequestSlice.actions
 
 export default receivedRequestSlice.reducer

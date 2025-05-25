@@ -6,7 +6,7 @@ import { aliasedTable, eq, and } from "drizzle-orm";
 import { exchangeRequestSchema } from "../models/exchangeRequest.ts";
 import { userSchema } from "../models/user.ts";
 import { InferSelectModel } from "drizzle-orm";
-import { sendClientRefetchRequests, sendClientRequestProposalDetails, sendClientRequestStatus } from "../index.ts";
+import { sendClientRefetch, sendClientRefetchRequests, sendClientRequestProposalDetails, sendClientRequestStatus } from "../index.ts";
 
 type SentRequest = {
     exchange_requests: InferSelectModel<typeof exchangeRequestSchema>,
@@ -57,8 +57,12 @@ export async function createRequest(req: Request, res: Response) {
             return newRequest
         })
 
+        if(!!newRequest.senderId){
         sendClientRefetchRequests(newRequest.senderId, "sent");
+        }
+        if(!!newRequest.receiverId){
         sendClientRefetchRequests(newRequest.receiverId, "received");
+        }
         res.status(200).json({ message: "Request created successfully!", data: newRequest });
     }
     catch (error: any) {
@@ -79,7 +83,7 @@ export async function sentRequests(req: Request, res: Response) {
         const receiver = aliasedTable(userSchema, "receiver");
         const requests = await db.select()
             .from(exchangeRequestSchema)
-            .where(eq(exchangeRequestSchema.senderId, id))
+            .where(and(eq(exchangeRequestSchema.senderId, id),eq(exchangeRequestSchema.isDeleted, false)))
             .leftJoin(offeredPost, eq(offeredPost.id, exchangeRequestSchema.barterId))
             .innerJoin(requestedPost, eq(requestedPost.id, exchangeRequestSchema.postId))
             .innerJoin(receiver, eq(receiver.id, exchangeRequestSchema.receiverId))
@@ -109,7 +113,7 @@ export async function receivedRequests(req: Request, res: Response) {
         const sender = aliasedTable(userSchema, "sender");
         const requests = await db.select()
             .from(exchangeRequestSchema)
-            .where(eq(exchangeRequestSchema.receiverId, id))
+            .where(and(eq(exchangeRequestSchema.receiverId, id),eq(exchangeRequestSchema.isDeleted, false)))
             .leftJoin(offeredPost, eq(offeredPost.id, exchangeRequestSchema.barterId))
             .innerJoin(requestedPost, eq(requestedPost.id, exchangeRequestSchema.postId))
             .innerJoin(sender, eq(sender.id, exchangeRequestSchema.senderId))
@@ -161,8 +165,12 @@ export async function updateRequestStatus(req: Request, res: Response) {
                         tx.rollback();
                     }
                     await tx.update(exchangeRequestSchema).set({ status: "cancelled" }).where(eq(exchangeRequestSchema.id, id));
+                    if(!!request.senderId){
                     sendClientRequestStatus(request.senderId, request.id, "cancelled");
+                    }
+                    if(!!request.receiverId){
                     sendClientRequestStatus(request.receiverId, request.id, "cancelled");
+                    }
                 })
             }
             else if (status === "confirmed") {
@@ -186,8 +194,12 @@ export async function updateRequestStatus(req: Request, res: Response) {
                     if (request.barterId !== null) {
                         await tx.update(postSchema).set({ status: "pending" }).where(eq(postSchema.id, request.barterId));
                     }
+                    if(!!request.senderId){
                     sendClientRequestStatus(request.senderId, request.id, "confirmed");
+                    }
+                    if(!!request.receiverId){
                     sendClientRequestStatus(request.receiverId, request.id, "confirmed");
+                    }
                 })
 
             }
@@ -203,9 +215,12 @@ export async function updateRequestStatus(req: Request, res: Response) {
                         tx.rollback();
                     }
                     await tx.update(exchangeRequestSchema).set({ status: "rejected" }).where(eq(exchangeRequestSchema.id, id));
+                    if(!!request.senderId){
                     sendClientRequestStatus(request.senderId, request.id, "rejected");
+                    }
+                    if(!!request.receiverId){
                     sendClientRequestStatus(request.receiverId, request.id, "rejected");
-
+                    }
                 })
 
             }
@@ -217,8 +232,12 @@ export async function updateRequestStatus(req: Request, res: Response) {
                     }
                     if (request.status === "proposed") {
                         await tx.update(exchangeRequestSchema).set({ status: "cancelled" }).where(eq(exchangeRequestSchema.id, id));
+                        if(!!request.senderId){
                         sendClientRequestStatus(request.senderId, request.id, "cancelled");
+                        }
+                        if(!!request.receiverId){
                         sendClientRequestStatus(request.receiverId, request.id, "cancelled");
+                        }
                     }
                     else if (request.status === "confirmed") {
                         await tx.update(exchangeRequestSchema).set({ status: "cancelled" }).where(eq(exchangeRequestSchema.id, id));
@@ -226,8 +245,12 @@ export async function updateRequestStatus(req: Request, res: Response) {
                         if (request.barterId !== null) {
                             await tx.update(postSchema).set({ status: "available" }).where(eq(postSchema.id, request.barterId));
                         }
+                        if(!!request.senderId){
                         sendClientRequestStatus(request.senderId, request.id, "cancelled");
+                        }
+                        if(!!request.receiverId){
                         sendClientRequestStatus(request.receiverId, request.id, "cancelled");
+                        }
                     }
                     else {
                         tx.rollback();
@@ -256,8 +279,12 @@ export async function updateRequestStatus(req: Request, res: Response) {
                     if (request.barterId !== null) {
                         await tx.update(postSchema).set({ status: "exchanged" }).where(eq(postSchema.id, request.barterId));
                     }
+                    if(!!request.senderId){
                     sendClientRequestStatus(request.senderId, request.id, "completed");
+                    }
+                    if(!!request.receiverId){
                     sendClientRequestStatus(request.receiverId, request.id, "completed");
+                    }
                 })
             }
             else {
@@ -324,8 +351,12 @@ export async function sendProposal(req: Request, res: Response) {
                 time: newRequest.time,
                 status: newRequest.status
             }
+            if(!!request.senderId){
             sendClientRequestProposalDetails(request.senderId, request.id,details);
+            }
+            if(!!request.receiverId){
             sendClientRequestProposalDetails(request.receiverId, request.id, details);
+            }
             return newRequest
         })
         res.status(200).json({ message: "Proposal sent successfully!", data: newRequest })
@@ -333,5 +364,47 @@ export async function sendProposal(req: Request, res: Response) {
     catch (error: any) {
         console.log(error)
         res.status(error?.cause || 500).json({ message: error?.message || "Internal server error", data: null });
+    }
+}
+
+export async function deleteRequest(req: Request, res: Response) {
+    try {
+        const userId = req.user?.id
+        if (!userId) {
+            throw new Error("Unauthorized", { cause: 401 });
+        }
+        const id = Number(req.params.id);
+        const type = req.params.type;
+        if (!id || !type) {
+            throw new Error("Request id and type is required");
+        }
+        if(type === "sent"){
+            await db.transaction(async (tx) => {
+                const [{status}] = await tx.select({status:exchangeRequestSchema.status}).from(exchangeRequestSchema).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.senderId, userId)));
+                if(!status){
+                    tx.rollback();
+                }
+                if(status === "cancelled" || status === "rejected" || status === "completed"){
+                    await tx.update(exchangeRequestSchema).set({senderId: null}).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.senderId, userId)));
+                }  
+            })
+        }
+
+        if(type === "received"){
+            await db.transaction(async (tx) => {
+                const [{status}] = await tx.select({status:exchangeRequestSchema.status}).from(exchangeRequestSchema).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.receiverId, userId)));
+                if(!status){
+                    tx.rollback();
+                }
+                if(status === "cancelled" || status === "rejected" || status === "completed"){
+                    await tx.update(exchangeRequestSchema).set({receiverId: null}).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.receiverId, userId)));
+                }  
+            })
+        }
+        res.status(200).json({ message: "Request deleted successfully!"});
+    }
+    catch (error: any) {
+        console.log(error)
+        res.status(error?.cause || 500).json({ message: error?.message || "Internal server error" });
     }
 }

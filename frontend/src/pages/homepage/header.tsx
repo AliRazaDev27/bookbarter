@@ -46,9 +46,9 @@ export function Header() {
                                 <li>
                                     <Notifications />
                                 </li>
-                                <li>
+                                {/* <li>
                                     <MdMessage className="text-xl" />
-                                </li>
+                                </li> */}
                                 <li id="req_link">
                                     <Requests />
                                 </li>

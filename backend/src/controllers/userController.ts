@@ -5,6 +5,10 @@ import { eq } from "drizzle-orm"
 
 export async function getAllUsers(req: Request, res: Response) {
   try {
+    const userId = req.user?.id;
+    if(!userId) throw new Error("Unauthorized", { cause: 401 });
+    const [user] = await db.select().from(userSchema).where(eq(userSchema.id, userId));
+    if(!user || user.role !== "admin") throw new Error("Unauthorized", { cause: 401 });
     const users = await db.select().from(userSchema);
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const usersWithFullPictureUrl = users.map(user => ({

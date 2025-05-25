@@ -83,3 +83,14 @@ export async function getAllUsers(){
         return null;
     }
 }
+
+export async function logout(){
+    try{
+        await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`,{withCredentials:true});
+        return true;
+    }
+    catch(error:any){
+        console.log("logout:", error);
+        return false;
+    }
+}
