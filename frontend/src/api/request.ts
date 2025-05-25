@@ -32,16 +32,16 @@ export async function getReceivedRequests() {
 
 export async function sendProposal(id: number, location: string, date: string, time: string) {
     try {
-        await axios.put(`${import.meta.env.VITE_BACKEND_URL}/requests/sendProposal/${id}`, {
+        const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/requests/sendProposal/${id}`, {
             location,
             date,
             time,
         }, { withCredentials: true })
-        return null;
+        return {success:true, message:response.data.message};
     }
     catch (error: any) {
         console.log(error)
-        return null;
+        return {success:false, message:error.response.data.message || "An error occurred while sending the proposal."};
     }
 }
 
@@ -53,5 +53,16 @@ export async function updateRequestStatus(id: number, type: "sent" | "received",
     catch (error: any) {
         console.log(error)
         return null;
+    }
+}
+
+export async function deleteRequest(id:number, type:"sent" | "received"){
+    try {
+        await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/requests/${type}/${id}`,{withCredentials:true});
+        return true;
+    }
+    catch (error: any) {
+        console.log(error)
+        return false;
     }
 }

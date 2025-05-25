@@ -124,10 +124,11 @@ export async function login(req: Request, res: Response) {
 }
 export async function logout(req: Request, res: Response) {
   try {
-
+    res.clearCookie('auth-token');
+    res.status(200).end();
   }
   catch (error: any) {
-
+    res.status(500).end();
   }
 }
 export async function session(req: Request, res: Response) {

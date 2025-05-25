@@ -10,6 +10,7 @@ import favoriteRoutes from './routes/favoriteRoutes.ts';
 import wishlistRoutes from './routes/wishlistRoutes.ts';
 import { getUser } from './middlewares/index.ts';
 import notificationRoutes from './routes/notificationRoutes.ts';
+import reviewRoutes from './routes/reviewRoutes.ts';
 
 dotenv.config()
 
@@ -39,6 +40,9 @@ export function sendClientRequestProposalDetails(userId:number, requestId:number
   signedClients.get(userId)?.write(`event: requestproposal\ndata: ${JSON.stringify(data)}\n\n`);
 }
 
+export function sendClientRefetch(userId:number, type:string){
+  signedClients.get(userId)?.write(`event: refetch\ndata: ${type}\n\n`);
+}
 
 
 app.use("/uploads", express.static("uploads"));
@@ -58,6 +62,7 @@ app.use('/requests', requestRoutes )
 app.use('/favorites', favoriteRoutes )
 app.use('/wishlist', wishlistRoutes )
 app.use('/notifications', notificationRoutes)
+app.use('/reviews', reviewRoutes)
 
 app.get('/events', getUser ,async(req, res) => {
   const userId = req.user?.id;

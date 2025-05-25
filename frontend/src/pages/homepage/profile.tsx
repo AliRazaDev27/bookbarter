@@ -1,10 +1,18 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSelector } from "react-redux";
+import { logout } from "@/api/user";
 
 export function Profile() {
     const user = useSelector((state: any) => state.user.data)
+    const navigate = useNavigate();
+    const handleLogout = async() => {
+        const response = await logout();
+        if(!!response){
+            navigate("/signin");
+        }
+    }
     return (
         <div>
             <DropdownMenu>
@@ -27,7 +35,7 @@ export function Profile() {
                             </li>
                             <hr/>
                             <li>
-                                <button className="w-full font-medium text-center px-4 py-2 block hover:bg-gray-200">Logout</button>
+                                <button onClick={handleLogout} className="w-full font-medium text-center px-4 py-2 block hover:bg-gray-200">Logout</button>
                             </li>
                         </ul>
 

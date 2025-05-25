@@ -4,7 +4,8 @@ import { postSchema } from "./posts.ts";
 
 export const reviewsSchema = pgTable('reviews', {
     id: serial('id').primaryKey(),
-    userId: integer("user_id").notNull().references(() => userSchema.id,{ onDelete: "set null" }),
+    senderId: integer("sender_id").notNull().references(() => userSchema.id,{ onDelete: "set null" }),
+    receiverId: integer("receiver_id").notNull().references(() => userSchema.id,{ onDelete: "set null" }),
     postId: integer("post_id").notNull().references(() => postSchema.id,{ onDelete: "set null" }),
     rating: integer('rating').notNull(),
     review: varchar('review', { length: 512 }).notNull(),
