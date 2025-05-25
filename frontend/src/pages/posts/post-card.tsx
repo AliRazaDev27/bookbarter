@@ -8,6 +8,7 @@ import { Heart, MessageCircle, Clock , BookOpen, Trophy } from "lucide-react"
 import { ExchangeRequestDialog } from "./exchange-request-dialog"
 import { toggleFavorite } from "@/api/favorites"
 import { useAppSelector } from "@/hooks/redux"
+import { PostStatus } from "@/components/ui/post-status"
 
 interface PostCardProps {
   post: {
@@ -61,7 +62,12 @@ export default function PostCard({ post, user }: PostCardProps) {
   }
 
   return (
-    <Card className="w-full max-w-lg overflow-hidden">
+    <Card className="w-full max-w-lg overflow-hidden relative">
+        <div className="absolute top-2 right-2">
+          <PostStatus status={post?.status}>
+            <p className="px-2 py-1.5 font-medium">{post?.status}</p>
+          </PostStatus>
+        </div>
       <CardHeader className="p-0">
         {/* Image Carousel */}
         <Carousel className="w-full">

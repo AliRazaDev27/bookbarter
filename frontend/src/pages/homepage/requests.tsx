@@ -359,7 +359,7 @@ export function AllowedActions({ id, type, state, isReviewed }: { id: number, ty
                 <div className="flex flex-col gap-4">
                     <div className="">
                         <Label htmlFor="rating">Rating</Label>
-                        <Input id="rating" type="number" min={0} max={10} ref={ratingRef} required/>
+                        <Input id="rating" type="number" min={0} max={5} ref={ratingRef} required/>
                     </div>
                     <div>
                         <Label htmlFor="review">Review</Label>

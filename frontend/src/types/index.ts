@@ -60,6 +60,11 @@ export interface IReview {
     postId: number;
     rating: number;
     review: string;
+    postAuthor: string;
+    postTitle:string;
+    postImages:string[];
+    userName:string;
+    userPicture:string;
     createdAt: string;
     updatedAt: string;
 }

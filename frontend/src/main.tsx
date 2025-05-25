@@ -19,6 +19,7 @@ import { ManagePosts } from './pages/profile/post/managePosts'
 import { ManageWishlist } from './pages/profile/wishlist/manageWishlist'
 import { Post } from './pages/post'
 import { loader as postLoader } from './pages/post'
+import { ViewReview } from './pages/profile/review/viewReview'
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: '/profile/wishlist/manage',
         element: <ManageWishlist />,
+      },
+      {
+        path: '/profile/reviews/view',
+        element: <ViewReview />,
       },
       {
         path: '/signin',
