@@ -11,12 +11,14 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { deleteWishlist, getWishlist } from "@/api/wishlist";
 import { useToast } from "@/hooks/use-toast";
-import { IoMdRefreshCircle } from "react-icons/io";
 import { CreateWishlist } from "./createWishlist";
+import { Link } from "react-router";
+import { IoReturnUpBackOutline } from "react-icons/io5";
+import { IWishlist } from "@/types";
 
 
 export function ManageWishlist() {
-    const [wishlist, setWishlist] = useState([]);
+    const [wishlist, setWishlist] = useState<IWishlist[]>([]);
     const [loading, setLoading] = useState(false)
     const { toast } = useToast()
     const handleDelete = async (index: number) => {
@@ -59,12 +61,12 @@ export function ManageWishlist() {
     return (
         <div className="pt-20 pb-8 px-2 md:px-4">
             <div className="mb-6 flex items-center justify-between">
+                <Link to="/profile" className="hover:bg-gray-300 rounded-lg p-2">
+                    <IoReturnUpBackOutline className="h-8 w-8" />
+                </Link>
                 <h1 className="text-3xl font-bold text-neutral-700">Manage Wishlist</h1>
                 <div className="flex gap-4">
                     <CreateWishlist />
-                    <button>
-                        <IoMdRefreshCircle className="text-3xl text-neutral-700 hover:text-green-600" />
-                    </button>
                 </div>
             </div>
             <div className="w-full border">

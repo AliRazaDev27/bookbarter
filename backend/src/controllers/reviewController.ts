@@ -53,3 +53,18 @@ export async function createReview(req: Request, res: Response) {
         res.status(error.cause || 500).json({ message: error.message || 'Internal Server Error' });
     }
 }
+
+export async function getReviewReceived(req: Request, res: Response){
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            throw new Error('User not authenticated', { cause: 401 });
+        }
+        const reviewReceived = await db.select().from(reviewsSchema).where(eq(reviewsSchema.receiverId, userId));
+        res.status(200).json({ message: 'Reviews fetched successfully!', data: reviewReceived });
+    }
+    catch (error: any) {
+        console.error('Error fetching reviews:', error);
+        res.status(error.cause || 500).json({ message: error.message || 'Internal Server Error' });
+    }
+}

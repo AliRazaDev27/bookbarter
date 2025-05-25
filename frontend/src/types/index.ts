@@ -52,3 +52,14 @@ export interface IPost {
     category: string;
     currency: string;
 }
+
+export interface IReview {
+    id: number;
+    senderId: number;
+    receiverId: number;
+    postId: number;
+    rating: number;
+    review: string;
+    createdAt: string;
+    updatedAt: string;
+}

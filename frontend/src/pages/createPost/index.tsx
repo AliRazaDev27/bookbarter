@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { bookConditionEnum, bookCategoryEnum, exchangeTypeEnum, currencyEnum, languageEnum } from '@/zodSchemas/post';
 import { postZodSchema } from '@/zodSchemas/post';
 import { createPost } from '@/api/post';
-import { useState } from 'react';
+import { useState,useRef } from 'react';
 import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
@@ -20,6 +20,7 @@ type PostFormValues = z.infer<typeof postZodSchema>;
 export function CreatePost() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const closeRef = useRef<HTMLButtonElement>(null);
   const { register, handleSubmit, formState: { errors }, setError, setValue, watch } = useForm<PostFormValues>({
     resolver: zodResolver(postZodSchema),
     defaultValues: {
@@ -60,6 +61,7 @@ export function CreatePost() {
     setLoading(true);
     const result = await createPost(formData);
     setLoading(false);
+    closeRef.current?.click();
     console.log(result);
     if (result.status === 422) {
       Object.entries(result.data).forEach(([key, value]) => {
@@ -230,7 +232,7 @@ export function CreatePost() {
             </div>
             <div className='flex items-center justify-between mt-4'>
               <DialogClose asChild>
-                <Button className='bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md'>
+                <Button ref={closeRef} className='bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md'>
                   Cancel
                 </Button>
               </DialogClose>

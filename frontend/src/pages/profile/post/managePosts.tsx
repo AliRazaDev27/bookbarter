@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 import { CreatePost } from "@/pages/createPost";
 import { Link } from "react-router";
 import { IoReturnUpBackOutline } from "react-icons/io5";
+import { PostStatus } from "@/components/ui/post-status";
+import { useAppSelector } from "@/hooks/redux";
 
 export function ManagePosts() {
     const posts = useSelector((state: any) => state.userPosts.data) as []
@@ -23,7 +25,7 @@ export function ManagePosts() {
     const dispatch = useDispatch()
     const handleDelete = async (index: number) => {
         try {
-            const id = parseInt(posts[index].post.id)
+            const id = parseInt(posts[index]?.post?.id)
             setLoading(true)
             const response = await deletePost(id)
             setLoading(false)
@@ -103,7 +105,13 @@ export function ManagePosts() {
                                     <TableCell className="capitalize">{post.post.exchangeType}</TableCell>
                                     <TableCell>{post.post.price}</TableCell>
                                     <TableCell>{post.post.currency}</TableCell>
-                                    <TableCell className="capitalize">{post.post.status}</TableCell>
+                                    <TableCell>
+                                        <PostStatus status={post.post.status}>
+                                            <p className="p-2">
+                                                {post.post.status}
+                                            </p>
+                                        </PostStatus>
+                                    </TableCell>
                                     <TableCell>
                                         <div className="flex items-center justify-center">
                                             <button disabled={loading} onClick={() => { handleDelete(index) }} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">

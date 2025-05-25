@@ -30,7 +30,7 @@ export async function getWishlist(){
     }
 }
 
-export async function deleteWishlist(id: string) {
+export async function deleteWishlist(id: number) {
     try {
         const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/wishlist/${id}`, {
             withCredentials: true,
