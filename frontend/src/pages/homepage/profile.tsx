@@ -11,6 +11,8 @@ export function Profile() {
         const response = await logout();
         if(!!response){
             navigate("/signin");
+            // rather hard reset the page
+            window.location.reload();
         }
     }
     return (
