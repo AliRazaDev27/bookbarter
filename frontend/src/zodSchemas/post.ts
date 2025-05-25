@@ -76,11 +76,10 @@ export const postZodSchema = z.object({
     bookCondition: bookConditionEnum,
     exchangeType: exchangeTypeEnum,
     exchangeCondition: z.string().max(512).optional(),
-    isPublic: z.boolean().default(true),
     price: z.string()
     .max(9)
     .regex(/^\d+(\.\d{1,2})?$/).default("0.00"),
-    currency: currencyEnum,
+    currency: currencyEnum.default("PKR"),
     locationApproximate: z.string().min(1).max(128),
     images: z.instanceof(FileList)
     .refine((list) => list.length > 0, "No files selected")
