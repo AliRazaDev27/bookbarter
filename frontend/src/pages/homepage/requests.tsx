@@ -80,7 +80,7 @@ export function Requests() {
                             <div className="flex flex-col gap-4">
                                 {
                                     sentRequests.map((request: any, index: number) =>
-                                        <div key={`sent-request-${request.id}`} className="relative">
+                                        <div key={`sent-request-${index}`} className="relative">
                                             <RequestCard data={request} type="sent" />
                                             <Button
                                                 className="absolute bottom-1 left-4"
@@ -95,7 +95,7 @@ export function Requests() {
                             <div className="flex flex-col gap-4">
                                 {
                                     receivedRequests.map((request: any, index: number) =>
-                                        <div key={`received-request-${request.id}`} className="relative">
+                                        <div key={`received-request-${index}`} className="relative">
                                             <RequestCard data={request} type="received" />
                                             <Button
                                                 className="absolute bottom-1 left-4"
@@ -123,7 +123,7 @@ export function RequestCard({ data, type }: { data: any, type: "sent" | "receive
         <div className="flex flex-col gap-2 ">
             <div className="grid grid-cols-3 border rounded-2xl ps-1 pt-1 pb-2">
                 <div className="col-span-1 my-auto">
-                    <img src={data.requested_post.images[1]} alt="post_image" />
+                    <img src={data.requested_post.images[0]} alt="post_image" />
                 </div>
                 <div className="col-span-2 flex flex-col gap-1 items-start ps-2 pe-1 justify-start">
                     <p className="font-medium text-lg">{data.requested_post.title}</p>
@@ -150,7 +150,6 @@ export function DetailView({ index, type }: { index: number, type: "sent" | "rec
     const sentRequests = useSelector((state: any) => state.sentRequests.data)
     const receivedRequests = useSelector((state: any) => state.receivedRequests.data)
     const request = type === "sent" ? sentRequests[index] : receivedRequests[index]
-    const status = request.exchange_requests.status
     const user = useSelector((state: any) => state.user.data)
     return <div className="flex flex-col gap-3">
         <div className="border p-3 rounded-3xl">
@@ -198,7 +197,7 @@ export function DetailView({ index, type }: { index: number, type: "sent" | "rec
             <p className="font-medium text-md mb-1">Requested Book</p>
             <div className="grid grid-cols-3">
                 <div className="col-span-1 my-auto">
-                    <img src={request.requested_post.images[1]} alt="post_image" />
+                    <img src={request.requested_post.images[0]} alt="post_image" />
                 </div>
                 <div className="col-span-2 flex flex-col items-start ps-2 justify-center">
                     <p className="font-medium text-lg">{request.requested_post.title}</p>

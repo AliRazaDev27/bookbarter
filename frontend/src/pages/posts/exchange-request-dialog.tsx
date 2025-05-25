@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Book , Repeat } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -37,6 +37,7 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
     const [userBooks, setUserBooks] = useState<[]>([])
     const [bookOffered, setBookOffered] = useState("")
     const [notes, setNotes] = useState("")
+    const closeRef = useRef<HTMLButtonElement>(null)
 
     // title author user price postID bookList
     const handleConfirm = async () => {
@@ -49,6 +50,9 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
             setLoading(true)
             const response = await sendRequest(values)
             setLoading(false)
+            if (closeRef.current) {
+                closeRef.current.click()
+            }
             toast({
                 title: "MSG",
                 description: response.message,
@@ -91,17 +95,17 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
                 <div className="grid gap-4 py-0">
                     <div className="flex flex-col gap-1">
                         <p className="text-md font-medium flex items-center gap-2">
-                            Title: {data.title}
+                            <span className="text-neutral-700">Title:</span> {data.title}
                         </p>
                         <p className="text-md font-medium flex items-center gap-2">
-                            Author: {data.author}
+                            <span className="text-neutral-700">Author:</span> {data.author}
                         </p>
                         <p className="text-md font-medium flex items-center gap-2">
-                            User: {data.username}
+                            <span className="text-neutral-700">User:</span> {data.username}
                         </p>
                         {data.type === "pay" &&
                             <p className="text-md font-medium flex items-center gap-2">
-                                Price: {data.price}
+                                <span className="text-neutral-700">Price:</span> {data.price}
                             </p>
                         }
                     </div>
@@ -139,7 +143,7 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
                     </div>
                 </div>
                 <DialogFooter className="flex justify-between sm:justify-between">
-                    <DialogClose className="bg-black hover:bg-neutral-800 text-white font-semibold px-4 py-1 rounded-md">Cancel</DialogClose>
+                    <DialogClose ref={closeRef} className="bg-black hover:bg-neutral-800 text-white font-semibold px-4 py-1 rounded-md">Cancel</DialogClose>
                     <Button onClick={handleConfirm} disabled={loading}>Confirm Request</Button>
                 </DialogFooter>
             </DialogContent>
