@@ -67,7 +67,7 @@ export async function createPost(req: Request, res: Response) {
       if (newPost.length === 0) {
         throw new Error("Failed to create post", { cause: 500 });
       }
-      notificationGenerator(newPost[0].id,newPost[0].title, newPost[0].author);
+      notificationGenerator(newPost[0].id, newPost[0].title, newPost[0].author);
       res.status(201).json({ message: "Post created successfully!", data: newPost[0] });
     }
   } catch (error: any) {
@@ -222,7 +222,7 @@ export async function getPostsByUser(req: Request, res: Response) {
       ),false
           )`.as('isFav')
         : sql<boolean>`false`.as('isFav'),
-    }).from(postSchema).where(and(eq(postSchema.userId, userId),eq(postSchema.isDeleted, false))).innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
+    }).from(postSchema).where(and(eq(postSchema.userId, userId), eq(postSchema.isDeleted, false))).innerJoin(userSchema, eq(postSchema.userId, userSchema.id))
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const postsWithFullPictureUrl = posts.map(post => ({
       post: {
@@ -236,7 +236,7 @@ export async function getPostsByUser(req: Request, res: Response) {
         picture: post.users.picture ? `${baseUrl}/${post.users.picture}` : null, // Assuming profile picture is stored in `/uploads/`
       },
     }));
-    
+
     res.status(200).json({ message: "Posts fetched successfully!", data: postsWithFullPictureUrl });
   }
   catch (error: any) {
@@ -266,7 +266,7 @@ export async function getPostListByUser(req: Request, res: Response) {
     if (!userId) {
       throw new Error("Unauthorized", { cause: 401 });
     }
-    const posts = await db.select({ id: postSchema.id, title: postSchema.title }).from(postSchema).where(and(eq(postSchema.userId, userId),eq(postSchema.isDeleted, false),eq(postSchema.status,"available"))).orderBy(desc(postSchema.createdAt));
+    const posts = await db.select({ id: postSchema.id, title: postSchema.title }).from(postSchema).where(and(eq(postSchema.userId, userId), eq(postSchema.isDeleted, false), eq(postSchema.status, "available"))).orderBy(desc(postSchema.createdAt));
     res.status(200).json({ message: "Posts fetched successfully!", data: posts });
   }
   catch (error: any) {
@@ -285,11 +285,16 @@ export async function deletePost(req: Request, res: Response) {
     if (isNaN(postId)) {
       throw new Error("Invalid post ID", { cause: 400 });
     }
-    const post = await db.select().from(postSchema).where(and(eq(postSchema.id, postId), eq(postSchema.userId, userId)));
-    if (post.length === 0) {
-      throw new Error("Post not found", { cause: 404 });
-    }
-    await db.delete(postSchema).where(and(eq(postSchema.id, postId), eq(postSchema.userId, userId)));
+    await db.transaction(async (tx) => {
+      const [post] = await db.select().from(postSchema).where(and(eq(postSchema.id, postId), eq(postSchema.userId, userId)));
+      if (!post) {
+        throw new Error("Post not found", { cause: 404 });
+      }
+      if (post.status !== "exchanged") {
+        throw new Error("You can only delete posts that have been exchanged", { cause: 400 });
+      }
+      await db.delete(postSchema).where(and(eq(postSchema.id, postId), eq(postSchema.userId, userId)));
+    })
     res.status(200).json({ message: "Post deleted successfully!" });
   }
   catch (error: any) {
@@ -319,7 +324,7 @@ export async function getPostById(req: Request, res: Response) {
       ),false
           )`.as('isFav')
         : sql<boolean>`false`.as('isFav'),
-    }).from(postSchema).where(and(eq(postSchema.id, postId),eq(postSchema.isDeleted, false))).innerJoin(userSchema, eq(postSchema.userId, userSchema.id));
+    }).from(postSchema).where(and(eq(postSchema.id, postId), eq(postSchema.isDeleted, false))).innerJoin(userSchema, eq(postSchema.userId, userSchema.id));
 
     if (post.length === 0) {
       throw new Error("Post not found", { cause: 404 });

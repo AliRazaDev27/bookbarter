@@ -1,9 +1,6 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, Settings } from "lucide-react"
-import { MdOutlineCreate } from "react-icons/md";
-import { Button } from "@/components/ui/button"
-import { useState,useEffect } from "react"
-import axios from "axios";
+import { useEffect } from "react"
 import { Link } from "react-router"
 import { setUserPosts } from "@/store/features/userPosts/userPostSlice";
 import { useDispatch, useSelector } from "react-redux";

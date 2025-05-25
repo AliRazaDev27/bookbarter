@@ -15,6 +15,7 @@ type User = {
     mobileNo: string
     picture: string
     status: "unverified" | "active" | "blocked"
+    role: string
     createdAt: Date
 }
 
@@ -75,16 +76,17 @@ export function UsersTable() {
     }, [])
 
     return (
-        <div className="rounded-md border bg-black/70 text-white/90">
+        <div className="rounded-md border bg-neutral-800 text-neutral-300">
             <Table>
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="*:text-neutral-400">
                         <TableHead>Avatar</TableHead>
                         <TableHead>Username</TableHead>
+                        <TableHead>Role</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Mobile</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Created</TableHead>
+                        <TableHead>Created At</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -96,7 +98,7 @@ export function UsersTable() {
                         </TableRow>
                     )}
                     {userData?.map((user) => (
-                        <TableRow key={user.id}>
+                        <TableRow key={user.id} className="hover:bg-neutral-700 font-medium">
                             <TableCell>
                                 <Avatar>
                                     <AvatarImage src={user.picture} alt={`${user.username}`} />
@@ -106,6 +108,7 @@ export function UsersTable() {
                                 </Avatar>
                             </TableCell>
                             <TableCell>{user.username}</TableCell>
+                            <TableCell className="uppercase">{user.role}</TableCell>
                             <TableCell>{user.email}</TableCell>
                             <TableCell>{user.mobileNo}</TableCell>
                             <TableCell>
