@@ -31,9 +31,8 @@ export function CreatePost() {
       bookCondition: undefined,
       exchangeType: undefined,
       exchangeCondition: '',
-      isPublic: true,
       price: '0.00',
-      currency: undefined,
+      currency: 'PKR',
       locationApproximate: '',
       images: undefined,
     },
@@ -50,7 +49,6 @@ export function CreatePost() {
     if (data?.bookCondition) formData.append('bookCondition', data.bookCondition);
     if (data?.exchangeType) formData.append('exchangeType', data.exchangeType);
     if (data?.exchangeCondition) formData.append('exchangeCondition', data.exchangeCondition);
-    formData.append('isPublic', data.isPublic.toString());
     formData.append('price', data.price);
     if (data?.currency) formData.append('currency', data.currency);
     formData.append('locationApproximate', data.locationApproximate);
@@ -197,30 +195,29 @@ export function CreatePost() {
               <Textarea id="exchangeCondition" {...register('exchangeCondition')} />
               {errors.exchangeCondition && <span className="text-red-500 text-sm">{errors.exchangeCondition.message}</span>}
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="isPublic" checked={watch('isPublic')} onCheckedChange={(checked: boolean) => setValue('isPublic', checked)} />
-              <Label htmlFor="isPublic">Is Public</Label>
-              {errors.isPublic && <span className="text-red-500 text-sm">{errors.isPublic.message}</span>}
-            </div>
-            <div>
-              <Label htmlFor="price">Price</Label>
-              <Input type="text" id="price" {...register('price')} required />
-              {errors.price && <span className="text-red-500 text-sm">{errors.price.message}</span>}
-            </div>
-            <div>
-              <Label htmlFor="currency">Currency</Label>
-              <Select onValueChange={handleCurrencyChange} value={watch('currency')}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencyEnum.options.map((currency) => (
-                    <SelectItem key={currency} value={currency}>{currency}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.currency && <span className="text-red-500 text-sm">{errors.currency.message}</span>}
-            </div>
+            {watch('exchangeType') === 'pay' && (
+              <>
+                <div>
+                  <Label htmlFor="price">Price</Label>
+                  <Input type="text" id="price" {...register('price')} required />
+                  {errors.price && <span className="text-red-500 text-sm">{errors.price.message}</span>}
+                </div>
+                <div>
+                  <Label htmlFor="currency">Currency</Label>
+                  <Select onValueChange={handleCurrencyChange} value={watch('currency')}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencyEnum.options.map((currency) => (
+                        <SelectItem key={currency} value={currency}>{currency}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.currency && <span className="text-red-500 text-sm">{errors.currency.message}</span>}
+                </div>
+              </>)
+            }
             <div>
               <Label htmlFor="locationApproximate">Approximate Location</Label>
               <Input type="text" id="locationApproximate" {...register('locationApproximate')} required />
@@ -234,8 +231,8 @@ export function CreatePost() {
             <div className='flex items-center justify-between mt-4'>
               <DialogClose asChild>
                 <Button className='bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md'>
-                Cancel
-                  </Button>
+                  Cancel
+                </Button>
               </DialogClose>
               <Button type="submit" disabled={loading}>Create Post</Button>
             </div>
