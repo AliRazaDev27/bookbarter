@@ -86,7 +86,6 @@ export async function login(req: Request, res: Response) {
     if (!isPasswordValid) {
       throw new Error("Invalid password", { cause: 401 });
     }
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
     const tokenData = {
       id: user[0].id,
     }
@@ -97,12 +96,12 @@ export async function login(req: Request, res: Response) {
     const token =  jwt.sign(tokenData, secret);
 
     res.cookie('auth-token', token, {
+      sameSite: "none",
       httpOnly: true,
       // secure: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     });
 
-// data: { ...user[0], picture: user[0].picture ? `${baseUrl}/${user[0].picture}` : null, }
 
     res.status(200).json({ error:null });
   } catch (error: any) {
