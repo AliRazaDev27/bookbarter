@@ -33,6 +33,20 @@ export async function getCurrentUserId(req:Request){
   }
 }
 
+export function getUserIdByToken(token: string) {
+  try {
+    if (!token) {
+      return null;
+    }
+    const user = jwt.verify(token, process.env.JWT_SECRET as string);
+    const id = (user as { id: number }).id;
+    return id;
+  } catch (error) {
+    console.error("Error getting user ID by token:", error);
+    return null;
+  }
+}
+
 export async function notificationGenerator(postId: number,title: string, author:string){
   try{
     const wishlist = await getWishlistByTitleAndAuthor(title, author);
