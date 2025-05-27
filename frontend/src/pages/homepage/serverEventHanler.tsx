@@ -9,8 +9,10 @@ export function ServerEventHandler() {
     const receivedRequest = useSelector((state: any) => state.receivedRequests.data)
     useEffect(() => {
         const eventSource = new EventSource(`${import.meta.env.VITE_BACKEND_URL}/events`, { withCredentials: true });
+        console.log(eventSource);
 
         eventSource.addEventListener('refetchrequests', (event) => {
+            console.log(event.data);
             if (event.data === "sent") {
                 try {
                     const sentRequests = async () => {

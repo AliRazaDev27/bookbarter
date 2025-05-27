@@ -11,6 +11,13 @@ import wishlistRoutes from './routes/wishlistRoutes.ts';
 import { getUser } from './middlewares/index.ts';
 import notificationRoutes from './routes/notificationRoutes.ts';
 import reviewRoutes from './routes/reviewRoutes.ts';
+import https from 'https';
+import fs from 'fs';
+
+const options = {
+  key: fs.readFileSync('../cert/localhost-key.pem'),
+  cert: fs.readFileSync('../cert/localhost.pem'),
+}
 
 dotenv.config()
 
@@ -22,6 +29,7 @@ export let clients: express.Response[] = [];
 export let signedClients = new Map<number, express.Response>();
 
 export function sendClientRefetchRequests(userId: number, type:string) {
+  console.log("Sending refetch requests to userId:", userId, "type:", type);
   signedClients.get(userId)?.write(`event: refetchrequests\ndata: ${type}\n\n`);
 }
 
@@ -48,7 +56,7 @@ export function sendClientRefetch(userId:number, type:string){
 app.use("/uploads", express.static("uploads"));
 app.use(cors(
   {
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }
 ))
@@ -76,18 +84,19 @@ app.get('/events', getUser ,async(req, res) => {
     signedClients.set(userId, res);
   }
   clients.push(res);
+
+  console.log(signedClients.size);
+  console.log(signedClients.keys());
   req.on('close', () => {
     clients = clients.filter(c => c !== res);
   });
 })
 
-app.get('/test', (req, res) => {
-  clients.forEach(client =>
-    client.write(`data: red\n\n`)
-  );
-  res.send('ok');
-})
 
-app.listen(port, () => {
-  console.log(`BookBarter Backend listening on port ${port}`)
-})
+// app.listen(port, () => {
+//   console.log(`BookBarter Backend listening on port ${port}`)
+// })
+
+https.createServer(options, app).listen(port, () => {
+  console.log(`BookBarter https express server running at https://localhost:${port}`);
+});

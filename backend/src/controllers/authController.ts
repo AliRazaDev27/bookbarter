@@ -98,7 +98,7 @@ export async function login(req: Request, res: Response) {
     res.cookie('auth-token', token, {
       sameSite: "none",
       httpOnly: true,
-      // secure: true,
+      secure: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     });
 
