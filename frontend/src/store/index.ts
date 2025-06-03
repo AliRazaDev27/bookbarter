@@ -5,6 +5,7 @@ import receivedRequestSlice from './features/request/receivedRequestSlice'
 import  userPostSlice  from './features/userPosts/userPostSlice'
 import notificationSlice from './features/notifications/notificationSlice'
 import  reviewSlice  from './features/review/reviewSlice'
+import messageSlice from './features/mwssages'
 const store = configureStore({
   reducer: {
     user: counterReducer,
@@ -13,6 +14,7 @@ const store = configureStore({
     userPosts: userPostSlice,
     notifications: notificationSlice,
     reviews: reviewSlice,
+    messages: messageSlice,
   }
 })
 

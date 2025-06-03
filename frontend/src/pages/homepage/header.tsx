@@ -9,6 +9,7 @@ import { setUserData } from "@/store/features/user/userSlice";
 import { getCurrentUser } from "@/api/user";
 import { useAppDispatch } from "@/hooks/redux";
 import { Notifications } from "./notifications";
+import { Messages } from "./messages";
 
 export function Header() {
     const dispatch = useAppDispatch()
@@ -46,9 +47,10 @@ export function Header() {
                                 <li>
                                     <Notifications />
                                 </li>
-                                {/* <li>
-                                    <MdMessage className="text-xl" />
-                                </li> */}
+                                <li>
+                                    <Messages />
+                                </li>
+
                                 <li id="req_link">
                                     <Requests />
                                 </li>

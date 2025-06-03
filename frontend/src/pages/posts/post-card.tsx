@@ -7,8 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Heart, MessageCircle, Clock , BookOpen, Trophy } from "lucide-react"
 import { ExchangeRequestDialog } from "./exchange-request-dialog"
 import { toggleFavorite } from "@/api/favorites"
-import { useAppSelector } from "@/hooks/redux"
+import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { PostStatus } from "@/components/ui/post-status"
+import { setReceiverId } from "@/store/features/mwssages"
 
 interface PostCardProps {
   post: {
@@ -40,6 +41,8 @@ interface PostCardProps {
 export default function PostCard({ post, user }: PostCardProps) {
 
   const currentUser = useAppSelector((state) => state.user.data);
+
+  const dispatch = useAppDispatch();
 
   // Format date to be more readable
   const formatDate = (dateString: string) => {
@@ -203,10 +206,12 @@ export default function PostCard({ post, user }: PostCardProps) {
           } />
         </div>
 
-        <Button variant="ghost" size="sm" className="flex items-center" disabled={!currentUser}>
-          <MessageCircle className="h-4 w-4 mr-1" />
-          <span className="max-md:hidden">Message</span>
-        </Button>
+<button
+onClick={()=>{dispatch(setReceiverId({receiverId:user?.id,timestamp:Date.now()}))}}>
+  msg
+</button>
+        {/* <Button variant="ghost" size="sm" className="flex items-center" disabled={!currentUser}>
+        </Button> */}
       </CardFooter>
     </Card>
   )
