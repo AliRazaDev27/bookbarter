@@ -16,3 +16,6 @@ export function formatDate(dateString: string): string {
   }).format(date)
 }
 
+export function getImageUrl(path: string) {
+  return `${import.meta.env.VITE_BACKEND_URL}/${path}`;
+}

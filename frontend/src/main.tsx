@@ -20,7 +20,6 @@ import { ManageWishlist } from './pages/profile/wishlist/manageWishlist'
 import { Post } from './pages/post'
 import { loader as postLoader } from './pages/post'
 import { ViewReview } from './pages/profile/review/viewReview'
-import { WebSocketHandler } from './wss'
 
 const router = createBrowserRouter([
   {
@@ -88,7 +87,6 @@ createRoot(document.getElementById('root')!).render(
       <RouterProvider router={router} />
       <Toaster />
       <ServerEventHandler />
-      <WebSocketHandler />
     </Provider>
   </StrictMode>,
 )

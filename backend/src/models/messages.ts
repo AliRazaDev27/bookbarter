@@ -11,3 +11,5 @@ export const messageSchema = pgTable('messages', {
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 });
+
+export type Message = typeof messageSchema.$inferSelect;

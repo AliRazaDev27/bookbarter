@@ -15,6 +15,8 @@ import https from 'https';
 import fs from 'fs';
 import { WebSocketServer,WebSocket } from 'ws'
 import { getUserIdByToken } from './utils/index.ts';
+import messageRoutes from './routes/messageRoutes.ts';
+import { Message } from './models/messages.ts';
 
 const options = {
   key: fs.readFileSync('../cert/localhost-key.pem'),
@@ -55,6 +57,17 @@ export function sendClientRefetch(userId: number, type: string) {
   signedClients.get(userId)?.write(`event: refetch\ndata: ${type}\n\n`);
 }
 
+export function sendClientMessage(to:number,from:number, message: Message) {
+  const data = {
+    from,
+    message
+  }
+  console.log(Object.entries(signedWebSocketClients));
+  if(signedWebSocketClients.get(to) === undefined) {
+    console.log("WebSocket client not found for userId:", to);
+  }
+  signedWebSocketClients.get(to)?.send(JSON.stringify(data));
+}
 
 app.use("/uploads", express.static("uploads"));
 app.use(cors(
@@ -74,6 +87,7 @@ app.use('/favorites', favoriteRoutes)
 app.use('/wishlist', wishlistRoutes)
 app.use('/notifications', notificationRoutes)
 app.use('/reviews', reviewRoutes)
+app.use('/messages', messageRoutes)
 
 app.get('/events', getUser, async (req, res) => {
   const userId = req.user?.id;
@@ -101,10 +115,18 @@ const wss = new WebSocketServer({ server });
 
 wss.on('connection', (socket, req) => {
   // cookies are not formatted correctly, currently only supports single cookie
-  const token = req.headers.cookie?.split('=')[0] === 'auth-token' ? req.headers.cookie.split('=')[1] : null;
+  console.log(req.headers.cookie);
+  const cookies = req.headers.cookie;
+  const cookiesArray = cookies?.split('; ');
+  let token = cookiesArray?.find((cookie) => cookie.startsWith('auth-token'));
+  if(token !== undefined) {
+    token = token.split('=')[1];
+  }
+  console.log("token:",token);
   if (!!token) {
     const userId = getUserIdByToken(token as string);
     if (!!userId) {
+      console.log(`creating socket for userId: ${userId}`);
       signedWebSocketClients.set(userId, socket);
       console.log(`🟢 WebSocket client connected with userId: ${userId}`);
     }
@@ -112,17 +134,10 @@ wss.on('connection', (socket, req) => {
   console.log('🟢 Client connected via WebSocket');
 
   socket.on('message', msg => {
-    console.log('📩 Received:', msg.toString());
-    socket.send(`Echo: ${msg}`);
+    console.log(msg);
   });
 
-  socket.send('Welcome to Secure WebSocket!');
 });
-
-
-// app.listen(port, () => {
-//   console.log(`BookBarter Backend listening on port ${port}`)
-// })
 
 server.listen(port, () => {
   console.log(`BookBarter https express server running at https://localhost:${port}`);
