@@ -1,11 +1,11 @@
-import { sendMessage } from "@/api/messages";
+import { getContactInfo, sendMessage } from "@/api/messages";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { BsFillSendFill } from "react-icons/bs";
 
 import { SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { appendMessage, setMessageRead } from "@/store/features/mwssages";
+import { appendMessage, setMessageRead, setUpContact } from "@/store/features/mwssages";
 import { setContactId } from "@/store/features/util/utilSlice";
 import { IoMdArrowBack } from "react-icons/io";
 import { IoCheckmark, IoCheckmarkDone } from "react-icons/io5";
@@ -14,20 +14,39 @@ import { IoCheckmark, IoCheckmarkDone } from "react-icons/io5";
 import { useEffect, useRef, useState } from "react";
 import { getImageUrl, groupMessagesWithDateLabels } from "@/lib/utils";
 import { markMessageAsRead } from "@/api/messages";
+import { get } from "http";
 
 export function ChatCard() {
+    const dispatch = useAppDispatch();
+    const [loading, setLoading] = useState(false);
     const contactId = useAppSelector(state => state.util.data.contactId);
     const contact = useAppSelector(state => state.messages[contactId]);
 
     const groupedMessages = groupMessagesWithDateLabels(contact?.messages || []);
-
-
-
     const messageInputRef = useRef<HTMLInputElement>(null); // Renamed to avoid conflict
-    const dispatch = useAppDispatch();
-    const [loading, setLoading] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const messageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({}); // To store refs for each message
 
+    const handleSend = async () => {
+        if (!messageInputRef.current) return;
+        if (messageInputRef.current.value === '') return;
+        if (contactId === 0) return;
+        setLoading(true);
+        const result = await sendMessage(contactId, messageInputRef.current.value);
+        setLoading(false);
+        console.log(result);
+        scrollToBottom();
+        messageInputRef.current.value = '';
+        if (result.success) {
+            if (result.data) {
+                dispatch(appendMessage({ contactId: contactId, message: result.data }));
+            }
+        }
+    }
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -61,30 +80,18 @@ export function ChatCard() {
         };
     }, [contact?.messages, contactId]); // Re-run effect if messages or contactId change
 
-    const handleSend = async () => {
-        if (!messageInputRef.current) return;
-        if (messageInputRef.current.value === '') return;
-        if (contactId === 0) return;
-        setLoading(true);
-        const result = await sendMessage(contactId, messageInputRef.current.value);
-        setLoading(false);
-        console.log(result);
-        scrollToBottom();
-        messageInputRef.current.value = '';
-        if (result.success) {
-            if (result.data) {
-                dispatch(appendMessage({ contactId: contactId, message: result.data }));
-            }
-        }
-    }
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
 
     useEffect(() => {
         scrollToBottom();
+        if(contact === undefined){
+            const setup = async () => {
+                const result = await getContactInfo(contactId);
+                if(!!result.success && !!result.data){
+                    dispatch(setUpContact({ contactId: contactId, contactInfo: result.data }));
+                }
+            }
+            setup();
+        }
     }, []);
 
     return (

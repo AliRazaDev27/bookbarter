@@ -38,10 +38,16 @@ const messageSlice = createSlice({
             }
 
         },
+        setUpContact(state,action:PayloadAction<{ contactId: number, contactInfo: { id: number, picture: string, username: string } }>) {
+            state[action.payload.contactId] = {
+                contactInfo: action.payload.contactInfo,
+                messages: []
+            }
+        }
 
     },
 });
 
-export const { setFetchMessages, appendMessage, setMessageRead } = messageSlice.actions
+export const { setFetchMessages, appendMessage, setMessageRead, setUpContact } = messageSlice.actions
 
 export default messageSlice.reducer;

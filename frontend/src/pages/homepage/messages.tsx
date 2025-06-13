@@ -55,10 +55,10 @@ export function Messages() {
                     console.log(result.type, result.data)
                     dispatch(appendMessage({ contactId: result.data.from, message: result.data.message }));
                 }
-                else if(result.type == 'message-read-status'){
+                else if (result.type == 'message-read-status') {
                     console.log(result.type, result.data)
-                    if(!!result.data.status){
-                    dispatch(setMessageRead({contactId: result.data.from, messageId: result.data.messageId}))
+                    if (!!result.data.status) {
+                        dispatch(setMessageRead({ contactId: result.data.from, messageId: result.data.messageId }))
                     }
                 }
             };
@@ -113,26 +113,37 @@ export function Messages() {
                         </SheetHeader>
                         <section className="flex flex-col gap-2">
                             {
-                                contactList && Object.entries(contactList).map(([key, value]) => {
-                                    return <section
-                                        onClick={() => { dispatch(setContactId({ contactId: Number(key) })) }}
-                                        key={key}
-                                        className="w-full flex items-center border gap-2 ps-1 pe-1.5 py-1.5 rounded-lg bg-white hover:bg-green-50  hover:cursor-pointer">
-                                        <div>
-                                            <Avatar className="h-12 w-12">
-                                                <AvatarImage src={`https://localhost:3000/${value.contactInfo.picture}`} />
-                                                <AvatarFallback>{value.contactInfo.username.slice(0, 2).toUpperCase()}</AvatarFallback>
-                                            </Avatar>
-                                        </div>
-                                        <div className="flex-1 space-y-1">
-                                            <div className="flex justify-between items-center">
-                                                <p className="w-min text-lg">{value.contactInfo.username}</p>
-                                                <p className="text-sm text-neutral-700 ">{new Date(value?.messages?.at(-1)?.createdAt).toDateString()}</p>
+                                contactList && Object.entries(contactList)
+                                    .sort(([, a], [, b]) => {
+                                        const timeA = new Date(a.messages.at(-1)?.createdAt || 0).getTime();
+                                        const timeB = new Date(b.messages.at(-1)?.createdAt || 0).getTime();
+                                        return timeB - timeA; // Descending order (latest on top)
+                                    })
+                                    .map(([key, value]) => {
+                                        return <section
+                                            onClick={() => { dispatch(setContactId({ contactId: Number(key) })) }}
+                                            key={key}
+                                            className="w-full flex items-center border gap-2 ps-1 pe-1.5 py-1.5 rounded-lg bg-white hover:bg-green-50  hover:cursor-pointer">
+                                            <div>
+                                                <Avatar className="h-12 w-12">
+                                                    <AvatarImage src={`https://localhost:3000/${value.contactInfo.picture}`} />
+                                                    <AvatarFallback>{value.contactInfo.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                                </Avatar>
                                             </div>
-                                            <p className="line-clamp-1 text-neutral-700">{value?.messages?.at(-1).message}</p>
-                                        </div>
-                                    </section>
-                                })
+                                            <div className="flex-1 space-y-1">
+                                                <div className="flex justify-between items-center">
+                                                    <p className="w-min text-lg">{value.contactInfo.username}</p>
+                                                    <p className="text-sm text-neutral-700 ">{new Date(value?.messages?.at(-1)?.createdAt || 0)?.toDateString()}</p>
+                                                </div>
+                                                {
+                                                    value?.messages?.at(-1)?.isRead ?
+                                                <p className="line-clamp-1 text-neutral-700">{value?.messages?.at(-1)?.message}</p>
+                                                    :
+                                                    <p className="line-clamp-1 text-neutral-700 font-semibold">{value?.messages?.at(-1)?.message}</p>
+                                                }
+                                            </div>
+                                        </section>
+                                    })
                             }
                         </section>
                     </section>

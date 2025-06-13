@@ -112,4 +112,18 @@ router.put('/:id', getUser, async (req, res) => {
     }
 });
 
+router.get('/contact/:id', async(req,res)=>{
+    try{
+        const id = Number(req.params.id);
+        if (!id) {
+            throw new Error("Missing required fields", { cause: 400 });
+        }
+        const [result] = await db.select({id: userSchema.id, username: userSchema.username, picture: userSchema.picture}).from(userSchema).where(eq(userSchema.id, id));
+        res.status(200).json({ success: true, data: result });
+    }
+    catch(error:any){
+        res.status(error?.cause || 500).json({ success: false, data: null});
+    }
+})
+
 export default router;

@@ -38,3 +38,15 @@ export async function getMessages() {
         return { message: error.message || "Something went wrong" };
     }
 }
+export async function getContactInfo(contactId:number){
+    try{
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/messages/contact/${contactId}`);
+        return response.data as {success:boolean,data:{id:number,picture:string,username:string}};
+    }
+    catch(error:any){
+        if(error?.response?.data) {
+            return error.response.data as {success:boolean,data:{id:number,picture:string,username:string}};
+        }
+        return {success:false,data:null};
+    }   
+}
