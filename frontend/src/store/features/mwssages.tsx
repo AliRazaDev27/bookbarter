@@ -32,11 +32,18 @@ const messageSlice = createSlice({
         },
         appendMessage(state,action:PayloadAction<{ contactId: number, message: IMessage }>) {
             state[action.payload.contactId].messages.push(action.payload.message);
-        }
+        },
+        setMessageRead(state,action:PayloadAction<{ contactId: number, messageId: number }>) {
+            const message = state[action.payload.contactId].messages.find(msg => msg.id === action.payload.messageId)
+            if(!!message){
+            message.isRead = true;
+            }
+
+        },
 
     },
 });
 
-export const { setFetchMessages, appendMessage } = messageSlice.actions
+export const { setFetchMessages, appendMessage, setMessageRead } = messageSlice.actions
 
 export default messageSlice.reducer;

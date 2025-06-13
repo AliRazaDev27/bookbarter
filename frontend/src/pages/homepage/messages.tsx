@@ -11,9 +11,10 @@ import { useEffect, useRef, useState } from "react"
 import { MdMessage } from "react-icons/md"
 import { ChatCard } from "./chat-card";
 import { getMessages } from "@/api/messages";
-import { appendMessage, setFetchMessages } from "@/store/features/mwssages";
+import { appendMessage, setFetchMessages, setMessageRead } from "@/store/features/mwssages";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { setContactId } from "@/store/features/util/utilSlice";
+import { clear } from "console";
 
 
 
@@ -33,23 +34,33 @@ export function Messages() {
     useEffect(() => {
         let socket: WebSocket;
         let reconnectTimeout: NodeJS.Timeout;
+        let fetchTimeout: NodeJS.Timeout;
         const fetchMessages = async () => {
             const result = await getMessages();
             dispatch(setFetchMessages({ data: result.data }))
         }
-        fetchMessages();
         const connectSocket = () => {
             socket = new WebSocket(import.meta.env.VITE_SOCKET_URL);
             socket.onopen = () => {
                 // ui indicator
                 console.log('WebSocket connection opened');
+                fetchMessages();
                 const messageSheet = document.getElementById('message-sheet');
                 messageSheet?.style.setProperty('border-color', 'green');
             };
             socket.onmessage = (event) => {
-                console.log(event.data)
-                const data = JSON.parse(event.data);
-                dispatch(appendMessage({ contactId: data.from, message: data.message }));
+                // console.log(event.data)
+                const result = JSON.parse(event.data);
+                if (result.type == 'message') {
+                    console.log(result.type, result.data)
+                    dispatch(appendMessage({ contactId: result.data.from, message: result.data.message }));
+                }
+                else if(result.type == 'message-read-status'){
+                    console.log(result.type, result.data)
+                    if(!!result.data.status){
+                    dispatch(setMessageRead({contactId: result.data.from, messageId: result.data.messageId}))
+                    }
+                }
             };
 
             socket.onclose = () => {
@@ -69,8 +80,16 @@ export function Messages() {
             };
         }
         connectSocket();
+
+        fetchTimeout = setTimeout(() => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.warn('⚠️ Socket not open, falling back to message fetch');
+                fetchMessages();
+            }
+        }, 3000);
         return () => {
             clearTimeout(reconnectTimeout);
+            clearTimeout(fetchTimeout);
             if (socket && socket.readyState === WebSocket.OPEN) {
                 socket.close();
             }

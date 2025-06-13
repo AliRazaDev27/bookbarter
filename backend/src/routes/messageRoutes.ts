@@ -1,6 +1,6 @@
 import express from 'express';
 import { getUser } from '../middlewares/index.ts';
-import { sendClientMessage } from '../index.ts';
+import { sendClientMessage, sendClientMessageStatus } from '../index.ts';
 import { db } from '../config/db.ts';
 import { messageSchema } from '../models/messages.ts';
 import { userSchema } from '../models/user.ts';
@@ -91,5 +91,25 @@ router.get('/', getUser, async (req, res) => {
         res.status(error?.cause || 500).json({ message: error?.message || "Internal server error" });
     }
 })
+
+router.put('/:id', getUser, async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            throw new Error("Unauthorized", { cause: 401 });
+        }
+        const messageId = parseInt(req.params.id);
+        if (!messageId) {
+            throw new Error("Missing required fields", { cause: 400 });
+        }
+        const [result] = await db.update(messageSchema).set({ isRead: true }).where(and(eq(messageSchema.id, messageId), eq(messageSchema.receiverId, userId))).returning();
+        sendClientMessageStatus(result.senderId, userId, result.id, true);
+
+        res.status(200).json({ success: true });
+    }
+    catch (error: any) {
+        res.status(error?.cause || 500).json({ success: false});
+    }
+});
 
 export default router;

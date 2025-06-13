@@ -62,11 +62,22 @@ export function sendClientMessage(to:number,from:number, message: Message) {
     from,
     message
   }
-  console.log(Object.entries(signedWebSocketClients));
-  if(signedWebSocketClients.get(to) === undefined) {
-    console.log("WebSocket client not found for userId:", to);
+  signedWebSocketClients.get(to)?.send(JSON.stringify({
+    type:'message',
+    data: data
+  }));
+}
+
+export function sendClientMessageStatus(to:number,from:number,messageId: number, status: boolean) {
+  const data = {
+    from,
+    messageId,
+    status
   }
-  signedWebSocketClients.get(to)?.send(JSON.stringify(data));
+  signedWebSocketClients.get(to)?.send(JSON.stringify({
+    type:'message-read-status',
+    data: data
+  }));
 }
 
 app.use("/uploads", express.static("uploads"));
