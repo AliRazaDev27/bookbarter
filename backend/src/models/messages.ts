@@ -1,6 +1,5 @@
 import { pgTable,serial,integer,varchar,timestamp,boolean } from "drizzle-orm/pg-core";
 import { userSchema } from "./user.ts";
-import { is } from "drizzle-orm";
 
 export const messageSchema = pgTable('messages', {
     id: serial('id').primaryKey(),

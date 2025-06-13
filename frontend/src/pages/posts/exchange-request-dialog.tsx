@@ -71,7 +71,7 @@ export function ExchangeRequestDialog({ data }: { data: ExchangeRequestData }) {
             setUserBooks(response)
             }
         }
-        if (data.type === "barter") {
+        if ( currentUser && data.type === "barter") {
             userBooks()
         }
     }, [])

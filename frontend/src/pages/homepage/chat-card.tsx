@@ -12,12 +12,17 @@ import { IoCheckmark, IoCheckmarkDone } from "react-icons/io5";
 
 
 import { useEffect, useRef, useState } from "react";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, groupMessagesWithDateLabels } from "@/lib/utils";
 import { markMessageAsRead } from "@/api/messages";
 
 export function ChatCard() {
     const contactId = useAppSelector(state => state.util.data.contactId);
     const contact = useAppSelector(state => state.messages[contactId]);
+
+    const groupedMessages = groupMessagesWithDateLabels(contact?.messages || []);
+
+
+
     const messageInputRef = useRef<HTMLInputElement>(null); // Renamed to avoid conflict
     const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(false);
@@ -101,36 +106,52 @@ export function ChatCard() {
                     View all your messages here.
                 </SheetDescription>
             </SheetHeader>
-            <section className="flex-1 flex flex-col gap-2 p-1 mt-2 overflow-y-auto" >
-                {
-                    contact?.messages?.map((message) => (
-                        <div
-                            key={message.id}
-                            id={`message-${message.id}`} // Add an ID for the observer
-                            ref={(el) => {
-                                if (message.id) {
-                                    messageRefs.current[message.id] = el;
-                                }
-                            }}
-                            className={`border border-neutral-200 space-y-1 max-w-[80%] px-3 py-1.5 rounded-lg ${message.receiverId === contactId ? 'ml-auto bg-green-200' : 'mr-auto bg-white'}`}
-                        >
-                            <p className="font-medium">{message.message}</p>
-                            <div className="flex items-center gap-1 justify-end">
-                                <p className="text-xs font-medium text-neutral-500">
-                                    {new Date(message.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
-                                </p>
-                                {
-                                    message.receiverId === contactId && (message.isRead === false ?
-                                        <IoCheckmark className="h-6 w-6" />
-                                        :
-                                        <IoCheckmarkDone className="h-6 w-6 text-blue-500" />)
-                                }
-                            </div>
-                        </div>
-                    ))
-                }
-                <div ref={messagesEndRef} />
-            </section>
+            <section className="flex-1 flex flex-col gap-2 p-1 mt-2 overflow-y-auto">
+  {
+    groupedMessages.map((item, index) => {
+      if (item.type === "date") {
+        return (
+          <div key={`date-${index}`} className="text-center my-2">
+            <span className="bg-gray-300 text-sm text-gray-700 px-3 py-1 rounded-full">
+              {item.date}
+            </span>
+          </div>
+        );
+      }
+
+      // message item
+      return (
+        <div
+          key={item.id}
+          id={`message-${item.id}`}
+          ref={(el) => {
+            if (item.id) {
+              messageRefs.current[item.id] = el;
+            }
+          }}
+          className={`border border-neutral-200 space-y-1 max-w-[80%] px-3 py-1.5 rounded-lg ${
+            item.receiverId === contactId ? 'ml-auto bg-green-200' : 'mr-auto bg-white'
+          }`}
+        >
+          <p className="font-medium">{item.message}</p>
+          <div className="flex items-center gap-1 justify-end">
+            <p className="text-xs font-medium text-neutral-500">
+              {new Date(item.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
+            </p>
+            {
+              item.receiverId === contactId &&
+              (item.isRead === false
+                ? <IoCheckmark className="h-6 w-6" />
+                : <IoCheckmarkDone className="h-6 w-6 text-blue-500" />)
+            }
+          </div>
+        </div>
+      );
+    })
+  }
+  <div ref={messagesEndRef} />
+</section>
+
             <section className="mt-auto">
                 <article className="flex items-center gap-2 pb-1">
                     <Input placeholder="message" ref={messageInputRef} onKeyDown={(e) => { if (e.key === 'Enter') handleSend() }} />
