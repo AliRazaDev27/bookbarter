@@ -10,6 +10,8 @@ import { toggleFavorite } from "@/api/favorites"
 import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { PostStatus } from "@/components/ui/post-status"
 import { setContactId, setTimestamp } from "@/store/features/util/utilSlice"
+import { FaRegMessage } from "react-icons/fa6";
+
 
 interface PostCardProps {
   post: {
@@ -206,16 +208,16 @@ export default function PostCard({ post, user }: PostCardProps) {
           } />
         </div>
 
-<button
+
+        <Button variant="ghost" size="sm" className="flex items-center" disabled={!currentUser}
 onClick={()=>{
   dispatch(setContactId({contactId:user?.id}))
   dispatch(setTimestamp({timestamp:Date.now()}))
 }}
-  >
-  msg
-</button>
-        {/* <Button variant="ghost" size="sm" className="flex items-center" disabled={!currentUser}>
-        </Button> */}
+        >
+        <FaRegMessage className="h-4 w-4 mr-1" />
+        <span className="hidden md:inline">Message</span>
+        </Button>
       </CardFooter>
     </Card>
   )
