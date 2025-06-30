@@ -14,7 +14,6 @@ import { IoCheckmark, IoCheckmarkDone } from "react-icons/io5";
 import { useEffect, useRef, useState } from "react";
 import { getImageUrl, groupMessagesWithDateLabels } from "@/lib/utils";
 import { markMessageAsRead } from "@/api/messages";
-import { get } from "http";
 
 export function ChatCard() {
     const dispatch = useAppDispatch();
@@ -45,7 +44,7 @@ export function ChatCard() {
     }
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
     };
     useEffect(() => {
         const observer = new IntersectionObserver(

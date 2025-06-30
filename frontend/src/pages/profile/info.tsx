@@ -35,7 +35,7 @@ export function UserInfo() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">{user?.username}</h2>
-                  <p className="text-muted-foreground">Member since {new Date(user?.createdAt).toDateString()}</p>
+                  <p className="text-muted-foreground">Member since {new Date(user?.createdAt || "").toDateString()}</p>
                 </div>
               </div>
 

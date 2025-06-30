@@ -14,15 +14,13 @@ import { getMessages } from "@/api/messages";
 import { appendMessage, setFetchMessages, setMessageRead } from "@/store/features/mwssages";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { setContactId } from "@/store/features/util/utilSlice";
-import { clear } from "console";
-
-
-
+import { Input } from "@/components/ui/input"; // Import Input component
 
 export function Messages() {
     const contactId = useAppSelector(state => state.util.data.contactId);
     const timestamp = useAppSelector(state => state.util.data.timestamp);
     const contactList = useAppSelector(state => state.messages);
+    const [searchTerm, setSearchTerm] = useState(''); // State for search input
     console.log(contactList)
     const triggerRef = useRef<HTMLButtonElement>(null);
     const dispatch = useAppDispatch();
@@ -49,10 +47,14 @@ export function Messages() {
                 messageSheet?.style.setProperty('border-color', 'green');
             };
             socket.onmessage = (event) => {
-                // console.log(event.data)
+                console.log(event.data)
                 const result = JSON.parse(event.data);
                 if (result.type == 'message') {
                     console.log(result.type, result.data)
+                    if (!contactList[result.data.from]) {
+                        console.log('New contact detected, refetching messages...');
+                        fetchMessages();
+                    }
                     dispatch(appendMessage({ contactId: result.data.from, message: result.data.message }));
                 }
                 else if (result.type == 'message-read-status') {
@@ -111,9 +113,18 @@ export function Messages() {
                                 View all your messages here.
                             </SheetDescription>
                         </SheetHeader>
+                        <Input
+                            placeholder="Search by username..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="mb-4"
+                        />
                         <section className="flex flex-col gap-2">
                             {
                                 contactList && Object.entries(contactList)
+                                    .filter(([, value]) =>
+                                        value.contactInfo.username.toLowerCase().includes(searchTerm.toLowerCase())
+                                    )
                                     .sort(([, a], [, b]) => {
                                         const timeA = new Date(a.messages.at(-1)?.createdAt || 0).getTime();
                                         const timeB = new Date(b.messages.at(-1)?.createdAt || 0).getTime();
