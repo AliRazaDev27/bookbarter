@@ -62,13 +62,13 @@ export async function createPost(req: Request, res: Response) {
         images: imagePaths,
       }
       // Insert the post into the database
-      const newPost = await db.insert(postSchema).values(postData).returning();
+      const [newPost] = await db.insert(postSchema).values(postData).returning();
 
-      if (newPost.length === 0) {
+      if (!newPost) {
         throw new Error("Failed to create post", { cause: 500 });
       }
-      notificationGenerator(newPost[0].id, newPost[0].title, newPost[0].author);
-      res.status(201).json({ message: "Post created successfully!", data: newPost[0] });
+      notificationGenerator(newPost?.id, newPost?.title, newPost?.author);
+      res.status(201).json({ message: "Post created successfully!", data: newPost });
     }
   } catch (error: any) {
     console.log(error);
@@ -78,7 +78,6 @@ export async function createPost(req: Request, res: Response) {
     res.status(error?.cause || 500).json({ message: error.message || "Internal server error", data: null });
   }
 }
-
 
 export async function getPosts(req: Request, res: Response) {
   try {

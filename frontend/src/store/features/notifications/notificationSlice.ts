@@ -14,10 +14,17 @@ export const notificationSlice = createSlice({
     setNotificationData: (state, action:PayloadAction<INotification[]>) => {
       state.data = action.payload;
     },
+    appendNotification: (state, action:PayloadAction<INotification>) => {
+      if (state.data) {
+        state.data.push(action.payload);
+      } else {
+        state.data = [action.payload];
+      }
+    }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { setNotificationData } = notificationSlice.actions
+export const { setNotificationData,appendNotification } = notificationSlice.actions
 
 export default notificationSlice.reducer

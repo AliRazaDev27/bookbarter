@@ -137,9 +137,9 @@ export function Messages() {
                                                 </div>
                                                 {
                                                     value?.messages?.at(-1)?.isRead ?
-                                                <p className="line-clamp-1 text-neutral-700">{value?.messages?.at(-1)?.message}</p>
-                                                    :
-                                                    <p className="line-clamp-1 text-neutral-700 font-semibold">{value?.messages?.at(-1)?.message}</p>
+                                                        <p className="line-clamp-1 text-neutral-700">{value?.messages?.at(-1)?.message}</p>
+                                                        :
+                                                        <p className="line-clamp-1 text-neutral-700 font-semibold">{value?.messages?.at(-1)?.message}</p>
                                                 }
                                             </div>
                                         </section>

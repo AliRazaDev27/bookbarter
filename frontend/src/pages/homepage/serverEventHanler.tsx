@@ -3,6 +3,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setReceivedRequests,updateReceivedRequestDetails,updateReceivedRequestStatus } from "../../store/features/request/receivedRequestSlice";
 import { setSentRequests, updateSentRequestDetails, updateSentRequestStatus } from "../../store/features/request/sentRequestSlice";
+import { appendNotification } from "@/store/features/notifications/notificationSlice";
 export function ServerEventHandler() {
     const dispatch = useDispatch()
     const sentRequest = useSelector((state: any) => state.sentRequests.data)
@@ -56,12 +57,11 @@ export function ServerEventHandler() {
             dispatch(updateReceivedRequestDetails(data))
             dispatch(updateSentRequestDetails(data))
         })
-        eventSource.onmessage = (event) => {
-            const color = event.data === 'red' ? 'bg-red-500' : 'bg-blue-500';
-            console.log(event.data);
-            const reqLink = document.getElementById("req_link");
-            reqLink?.classList.add(color);
-        };
+        eventSource.addEventListener('notification', (event) => {
+            const data = JSON.parse(event.data);
+            console.log(data);
+            dispatch(appendNotification(data))
+        })
 
         return () => eventSource.close();
     }, []);

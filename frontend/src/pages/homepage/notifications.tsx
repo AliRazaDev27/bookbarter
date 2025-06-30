@@ -93,14 +93,23 @@ export function Notifications() {
                                 <p className="text-xl font-semibold text-gray-800">
                                     {notification.notification.split("by")[0]}
                                 </p>
-                                <p className="text-lg font-medium text-gray-500">
+                                <p className="text-lg font-medium text-neutral-600">
                                     {notification.notification.split("by")[1]}
                                 </p>
+                                <p>
+                                    <span className="text-sm text-neutral-700">
+                                        {new Date(notification.createdAt).toLocaleDateString()} - {new Date(notification.createdAt).toLocaleTimeString()}
+                                    </span>
+                                </p>
+
                                 </div>
                                 <div className="flex gap-2 border self-end">
                                 {
                                     !notification.isRead &&
-                                <Button disabled={loading} onClick={()=>{handleMarkAsRead(notification.id)}}>
+                                <Button
+                                 disabled={loading}
+                                className="hover:bg-green-500"
+                                  onClick={()=>{handleMarkAsRead(notification.id)}}>
                                     <IoCheckmarkDoneSharp />
                                 </Button>
                                 }
@@ -108,6 +117,7 @@ export function Notifications() {
                                     notification.isRead &&
                                 <Button
                                 disabled={loading}
+                                className="hover:bg-red-500"
                                 onClick={()=>{handleDelete(notification.id)}}>
                                     <MdDelete />
                                     </Button>

@@ -92,13 +92,26 @@ export async function createNotification(userId: number, postId: number, notific
   try {
     console.log('createNotification:', userId, postId, notification);
     if (!userId || !postId || !notification) return null;
-    await db.insert(notificationSchema).values({
+    const [newNotification] = await db.insert(notificationSchema).values({
       userId,
       postId,
       notification,
-    })
+    }).returning();
 
-    return null;
+    const [notifications] = await db.select({
+      id: notificationSchema.id,
+      postId: notificationSchema.postId,
+      notification: notificationSchema.notification,
+      createdAt: notificationSchema.createdAt,
+      isRead: notificationSchema.isRead,
+      image: sql<string>`(SELECT images[1] FROM posts WHERE id = ${notificationSchema.postId})`.as('image'),
+    })
+      .from(notificationSchema)
+      .where(eq(notificationSchema.id, newNotification.id))
+      .limit(1);
+    const baseUrl = "https://localhost:3000";
+        notifications.image = `${baseUrl}/${notifications.image}`;
+    return notifications;
   } catch (error) {
     console.error('Error creating notification:', error);
     return null;

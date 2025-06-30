@@ -33,6 +33,10 @@ export let clients: express.Response[] = [];
 export let signedClients = new Map<number, express.Response>();
 export let signedWebSocketClients = new Map<number, WebSocket>();
 
+export function sendClientNotification(userId: number, notification: any) {
+  signedClients.get(userId)?.write(`event: notification\ndata: ${JSON.stringify(notification)}\n\n`);
+}
+
 export function sendClientRefetchRequests(userId: number, type: string) {
   console.log("Sending refetch requests to userId:", userId, "type:", type);
   signedClients.get(userId)?.write(`event: refetchrequests\ndata: ${type}\n\n`);

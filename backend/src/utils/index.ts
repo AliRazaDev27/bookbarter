@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { getWishlistByTitleAndAuthor } from "../controllers/wishlistController.ts";
 import { createNotification } from "../controllers/notificationController.ts";
+import { sendClientNotification } from "../index.ts";
 
 export async function cleanUpFiles(files: Express.Multer.File | Express.Multer.File[]) {
   const filesArray = Array.isArray(files) ? files : [files];
@@ -52,7 +53,10 @@ export async function notificationGenerator(postId: number,title: string, author
     const wishlist = await getWishlistByTitleAndAuthor(title, author);
     if(!!wishlist && wishlist.length > 0){
       wishlist.forEach(async (item) => {
-        await createNotification(item.userId, postId, `${title} by ${author}`);
+        const result = await createNotification(item.userId, postId, `${title} by ${author}`);
+        if(result){
+          sendClientNotification(item.userId, result)
+        }
       });
     }
     return null;

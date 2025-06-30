@@ -1,4 +1,4 @@
-import { Outlet, Link } from "react-router";
+import { Outlet, Link, useLocation } from "react-router";
 import { useEffect } from "react";
 import { IoNotifications } from "react-icons/io5";
 import { MdMessage, MdMenu } from "react-icons/md";
@@ -13,6 +13,7 @@ import { Messages } from "./messages";
 
 export function Header() {
     const dispatch = useAppDispatch()
+    const pathname = useLocation().pathname;
     const user = useSelector((state: any) => state.user.data)
     useEffect(() => {
         const getUser = async () => {
@@ -31,6 +32,8 @@ export function Header() {
         <>
             {/* very bad method */}
             <nav id="header" className="fixed top-0 border-b bg-white z-50 w-full flex justify-between items-center px-4 py-1 md:px-8 md:py-2">
+                {
+                    pathname=== "/"?
                 <div>
                     <Link to="/" className="max-lg:hidden hover:border-b hover:cursor-pointer hover:border-black">
                         <span className="text-2xl font-bold italic text-orange-500">Book</span>
@@ -39,7 +42,15 @@ export function Header() {
                     <button onClick={toggleFilterSidebar} className="lg:hidden">
                         <MdMenu className="text-2xl" />
                     </button>
+                </div>:
+                <div>
+                    <Link to="/" className="hover:border-b hover:cursor-pointer hover:border-black">
+                        <span className="text-2xl font-bold italic text-orange-500">Book</span>
+                        <span className="text-xl font-semibold italic">Barter</span>
+                    </Link>
                 </div>
+
+                }
                 {
                     !!user ?
                         <div>
