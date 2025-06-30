@@ -97,7 +97,7 @@ export function Posts() {
   }, [page, hasMore, initialData?.data]); // Added initialData.data to re-evaluate hasMore on filter changes
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full bg-gradient-to-l from-[#565656] to-[#181818]">
       <FilterSidebar />
       <main className="flex flex-1 flex-col gap-4 md:gap-8 min-h-screen w-full items-center pt-[60px] md:pt-[78px] px-2 md:px-0">
           {posts.length > 0 && posts.map((data, index) => {

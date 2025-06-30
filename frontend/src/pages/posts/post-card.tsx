@@ -87,7 +87,7 @@ export default function PostCard({ post, user }: PostCardProps) {
       }
 
       return (
-        <Card className="w-full max-w-lg overflow-hidden relative">
+        <Card className="w-full max-w-lg overflow-hidden relative border border-neutral-600 rounded-xl shadow-lg">
           <div className="absolute top-2 right-2 z-10">
             <PostStatus status={post?.status}>
               <p className="px-2 py-1.5 font-medium">{post?.status}</p>
