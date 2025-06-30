@@ -105,10 +105,10 @@ export function FilterSidebar() {
           top: `${headerHeight}px`,
           height: `calc(100svh - ${headerHeight}px)`,
         }}
-        className="sticky max-lg:fixed hidden z-50 bg-neutral-50 w-full lg:flex flex-col gap-4 px-2 py-2 overflow-y-auto border-r">
+        className="sticky max-lg:fixed hidden z-50 bg-zinc-50 w-full lg:flex flex-col gap-4 ps-4 pe-2 py-2 overflow-y-auto border-r">
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Filters</h2>
+            <h2 className="text-lg md:text-xl font-semibold">Filters</h2>
             <Button
               className="lg:hidden"
               variant="ghost" size="icon" onClick={() => sidebarRef.current?.classList.toggle("hidden")}>
@@ -119,16 +119,16 @@ export function FilterSidebar() {
           <div className="flex flex-col gap-2  pb-2">
             <div className="relative">
               <Label htmlFor="title" className="sr-only">
-                Search by title
+                Search by Title
               </Label>
-              <Input id="title" placeholder="Search by title..." className="pl-8" onChange={(e) => setTitle(e.target.value)} />
+              <Input id="title" placeholder="Search by Title..." className="pl-8 hover:outline outline-1" value={title} onChange={(e) => setTitle(e.target.value)} />
               <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
             </div>
             <div className="relative">
               <Label htmlFor="author" className="sr-only">
-                Search by author
+                Search by Author
               </Label>
-              <Input id="author" placeholder="Search by author..." className="pl-8" onChange={(e) => setAuthor(e.target.value)} />
+              <Input id="author" placeholder="Search by Author..." className="pl-8 hover:outline outline-1" value={author} onChange={(e) => setAuthor(e.target.value)} />
               <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
             </div>
           </div>
@@ -165,7 +165,7 @@ export function FilterSidebar() {
                       <Label htmlFor="currency" className="text-sm font-medium text-gray-600 mb-2">
                         Currency
                       </Label>
-                      <Select onValueChange={(e) => setCurrency(e)}>
+                      <Select value={currency} onValueChange={(e) => setCurrency(e)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
@@ -182,15 +182,13 @@ export function FilterSidebar() {
             </Collapsible>
           </div>
 
-          <div
-            className="border"
-          >
+          <div>
             <Collapsible className="group/collapsible">
               <li
                 data-sidebar="menu-item"
                 className="group/menu-item relative list-none">
                 <CollapsibleTrigger asChild>
-                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
+                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
                     Conditions <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
                     <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
                   </button>
@@ -201,7 +199,7 @@ export function FilterSidebar() {
                     "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5"
                   >
                     <div className="flex gap-2 items-center justify-between px-2 py-2">
-                      <Select onValueChange={(e) => setBookCondition(e)}>
+                      <Select value={bookCondition} onValueChange={(e) => setBookCondition(e)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Book Condition" />
                         </SelectTrigger>
@@ -216,7 +214,7 @@ export function FilterSidebar() {
                     </div>
 
                     <div className="flex gap-2 items-center justify-between px-2 py-2">
-                      <Select onValueChange={(e) => setExchangeType(e)}>
+                      <Select value={exchangeType} onValueChange={(e) => setExchangeType(e)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Exchange Type" />
                         </SelectTrigger>
@@ -236,11 +234,11 @@ export function FilterSidebar() {
           </div>
 
           <div
-            className="relative flex w-full min-w-0 flex-col p-2"
+            className="relative flex w-full flex-col"
           >
             <Collapsible className="group/collapsible">
               <CollapsibleTrigger asChild>
-                <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
+                <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
                   Language <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
                   <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
                 </button>
@@ -266,12 +264,12 @@ export function FilterSidebar() {
           </div>
 
           <div
-            className="relative flex w-full min-w-0 flex-col p-2"
+            className="relative flex w-full flex-col"
           >
             <Collapsible className="group/collapsible">
               <li className="group/menu-item relative list-none">
                 <CollapsibleTrigger asChild>
-                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
+                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
                     Sort By <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
                     <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
                   </button>
@@ -309,12 +307,12 @@ export function FilterSidebar() {
           </div>
 
           <div
-            className="relative flex w-full min-w-0 flex-col p-2 border"
+            className="relative flex w-full min-w-0 flex-col"
           >
             <Collapsible className="group/collapsible">
               <li className="group/menu-item relative list-none">
                 <CollapsibleTrigger asChild>
-                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border-b border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
+                  <button className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:ring-offset-gray-100">
                     Categories <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
                     <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
                   </button>
@@ -338,7 +336,7 @@ export function FilterSidebar() {
           </div>
 
           <div
-            className="flex flex-row gap-2 w-full p-2 border"
+            className="flex flex-row gap-2 w-full justify-between items-center"
           >
             <Button variant="outline" className="w-full" onClick={clearFilter}>
               Clear
