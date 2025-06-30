@@ -83,6 +83,7 @@ export async function createPost(req: Request, res: Response) {
 export async function getPosts(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
+    console.log("User ID:", userId);
     const searchParams = req.query;
     const {
       title,

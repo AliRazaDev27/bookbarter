@@ -2,7 +2,7 @@
 export function PostStatus({children, status}: {children: React.ReactElement, status: string}) {
     if(status === "available"){
     return (
-        <div className="border w-min bg-green-300 rounded-md">
+        <div className="w-min bg-green-300 text-neutral-600 capitalize rounded-md">
             {children}
         </div>
     )

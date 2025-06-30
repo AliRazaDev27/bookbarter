@@ -57,7 +57,7 @@ export async function getPosts(title?: string, author?: string, minPrice?: strin
         if (categories) params.set("categories", categories);
         if (page) params.set("page", page.toString());
         if (limit) params.set("limit", limit.toString());
-        const result = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/posts?${params.toString()}`);
+        const result = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/posts?${params.toString()}`, { withCredentials: true });
         const posts = await result.data;
         return posts;
     }

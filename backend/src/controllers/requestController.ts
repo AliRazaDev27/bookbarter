@@ -83,7 +83,7 @@ export async function sentRequests(req: Request, res: Response) {
         const receiver = aliasedTable(userSchema, "receiver");
         const requests = await db.select()
             .from(exchangeRequestSchema)
-            .where(and(eq(exchangeRequestSchema.senderId, id),eq(exchangeRequestSchema.isDeleted, false)))
+            .where(and(eq(exchangeRequestSchema.senderId, id),eq(exchangeRequestSchema.hasSenderDeleted, false)))
             .leftJoin(offeredPost, eq(offeredPost.id, exchangeRequestSchema.barterId))
             .innerJoin(requestedPost, eq(requestedPost.id, exchangeRequestSchema.postId))
             .innerJoin(receiver, eq(receiver.id, exchangeRequestSchema.receiverId))
@@ -113,7 +113,7 @@ export async function receivedRequests(req: Request, res: Response) {
         const sender = aliasedTable(userSchema, "sender");
         const requests = await db.select()
             .from(exchangeRequestSchema)
-            .where(and(eq(exchangeRequestSchema.receiverId, id),eq(exchangeRequestSchema.isDeleted, false)))
+            .where(and(eq(exchangeRequestSchema.receiverId, id),eq(exchangeRequestSchema.hasReceiverDeleted, false)))
             .leftJoin(offeredPost, eq(offeredPost.id, exchangeRequestSchema.barterId))
             .innerJoin(requestedPost, eq(requestedPost.id, exchangeRequestSchema.postId))
             .innerJoin(sender, eq(sender.id, exchangeRequestSchema.senderId))
@@ -385,7 +385,7 @@ export async function deleteRequest(req: Request, res: Response) {
                     tx.rollback();
                 }
                 if(status === "cancelled" || status === "rejected" || status === "completed"){
-                    await tx.update(exchangeRequestSchema).set({senderId: null}).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.senderId, userId)));
+                    await tx.update(exchangeRequestSchema).set({hasSenderDeleted: true}).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.senderId, userId)));
                 }  
             })
         }
@@ -397,7 +397,7 @@ export async function deleteRequest(req: Request, res: Response) {
                     tx.rollback();
                 }
                 if(status === "cancelled" || status === "rejected" || status === "completed"){
-                    await tx.update(exchangeRequestSchema).set({receiverId: null}).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.receiverId, userId)));
+                    await tx.update(exchangeRequestSchema).set({hasReceiverDeleted: true}).where(and(eq(exchangeRequestSchema.id, id), eq(exchangeRequestSchema.receiverId, userId)));
                 }  
             })
         }

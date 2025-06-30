@@ -30,6 +30,8 @@ export const exchangeRequestSchema = pgTable('exchange_requests', {
     status: exchangeRequestStatusEnum("status").default("pending").notNull(),
     isDeleted: boolean('is_deleted').default(false).notNull(),
     isReviewed: boolean('is_reviewed').default(false).notNull(),
+    hasSenderDeleted: boolean("has_sender_deleted").default(false).notNull(),
+    hasReceiverDeleted: boolean("has_receiver_deleted").default(false).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
 });
