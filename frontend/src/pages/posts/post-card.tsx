@@ -14,7 +14,6 @@ import { FaRegMessage } from "react-icons/fa6";
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { useState } from "react"
-import { set } from "date-fns"
 
 interface PostCardProps {
   post: {
@@ -259,7 +258,7 @@ export default function PostCard({ post, user }: PostCardProps) {
 
             {
               !!currentUser ? (
-                <Button variant="ghost" size="sm" className="flex items-center" disabled={!currentUser}
+                <Button variant="ghost" size="sm" className="flex items-center" disabled={currentUser?.id === user?.id}
                   onClick={() => {
                     dispatch(setContactId({ contactId: user?.id }))
                     dispatch(setTimestamp({ timestamp: Date.now() }))

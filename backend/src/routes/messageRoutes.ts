@@ -18,6 +18,9 @@ router.post('/', getUser, async (req, res) => {
         if (!contactId || !message) {
             throw new Error("Missing required fields", { cause: 400 });
         }
+        if( contactId === userId) {
+            throw new Error("You cannot send a message to yourself", { cause: 400 });
+        }
 
         const [result] = await db.insert(messageSchema).values({ senderId: userId, receiverId: contactId, message }).returning();
         sendClientMessage(contactId, userId, result);
