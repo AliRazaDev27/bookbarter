@@ -21,7 +21,6 @@ export function Messages() {
     const timestamp = useAppSelector(state => state.util.data.timestamp);
     const contactList = useAppSelector(state => state.messages);
     const [searchTerm, setSearchTerm] = useState(''); // State for search input
-    console.log(contactList)
     const triggerRef = useRef<HTMLButtonElement>(null);
     const dispatch = useAppDispatch();
 

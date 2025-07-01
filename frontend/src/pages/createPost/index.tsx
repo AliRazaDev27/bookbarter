@@ -8,19 +8,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { bookConditionEnum, bookCategoryEnum, exchangeTypeEnum, currencyEnum, languageEnum } from '@/zodSchemas/post';
 import { postZodSchema } from '@/zodSchemas/post';
-import { createPost } from '@/api/post';
+import { createPost, getPostById } from '@/api/post';
 import { useState,useRef } from 'react';
 import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { MdOutlineCreate } from 'react-icons/md';
-
+import { useAppDispatch } from '@/hooks/redux';
+import { appendUserPosts } from '@/store/features/userPosts/userPostSlice';
 type PostFormValues = z.infer<typeof postZodSchema>;
 
 export function CreatePost() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dispatch = useAppDispatch();
+
   const { register, handleSubmit, formState: { errors }, setError, setValue, watch } = useForm<PostFormValues>({
     resolver: zodResolver(postZodSchema),
     defaultValues: {
@@ -78,6 +81,9 @@ export function CreatePost() {
         duration: 2000,
         className: "bg-green-600 text-white",
       })
+      const newPost = await getPostById(result.data.id);
+      console.log(newPost);
+      dispatch(appendUserPosts(newPost));
     }
     else {
       toast({

@@ -16,10 +16,10 @@ import { CreatePost } from "@/pages/createPost";
 import { Link } from "react-router";
 import { IoReturnUpBackOutline } from "react-icons/io5";
 import { PostStatus } from "@/components/ui/post-status";
-import { useAppSelector } from "@/hooks/redux";
 
 export function ManagePosts() {
-    const posts = useSelector((state: any) => state.userPosts.data) as []
+    const posts = useSelector((state: any) => state.userPosts.data) as any[]
+    const sortedPosts = posts.toSorted((a: any, b: any) => b.post.id - a.post.id)
     const [loading, setLoading] = useState(false)
     const { toast } = useToast()
     const dispatch = useDispatch()
@@ -92,7 +92,8 @@ export function ManagePosts() {
                     </TableHeader>
                     <TableBody>
                         {
-                            posts.map((post: any, index) => (
+                          // sort by date created, most recent first 
+                            sortedPosts.map((post: any, index) => (
                                 <TableRow key={`manage-post-${index}`} className="font-semibold">
                                     <TableCell>
                                         <img src={post.post.images[0]} alt="Cover" className="h-14 sm:h-16 md:h-18 lg:h-20" />
