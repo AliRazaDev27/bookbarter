@@ -105,7 +105,7 @@ export function FilterSidebar() {
           top: `${headerHeight}px`,
           height: `calc(100svh - ${headerHeight}px)`,
         }}
-        className="sticky max-lg:fixed hidden z-50 bg-teal-50 w-full lg:flex flex-col gap-4 ps-4 pe-2 py-2 overflow-y-auto border-r">
+        className="sticky max-lg:fixed hidden z-50 bg-green-200 w-full lg:flex flex-col gap-4 ps-4 pe-2 py-2 overflow-y-auto border-r">
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg md:text-xl font-semibold">Filters</h2>
@@ -198,7 +198,7 @@ export function FilterSidebar() {
                     className="flex min-w-0 flex-col px-2.5 py-0.5">
                     <div className="flex gap-2 items-center justify-between px-2 py-2">
                       <Select value={bookCondition} onValueChange={(e) => setBookCondition(e)}>
-                        <SelectTrigger className="hover:outline outline-1">
+                        <SelectTrigger>
                           <SelectValue placeholder="Book Condition" />
                         </SelectTrigger>
                         <SelectContent>
@@ -213,7 +213,7 @@ export function FilterSidebar() {
 
                     <div className="flex gap-2 items-center justify-between px-2 py-2">
                       <Select value={exchangeType} onValueChange={(e) => setExchangeType(e)}>
-                        <SelectTrigger className="hover:outline outline-1">
+                        <SelectTrigger>
                           <SelectValue placeholder="Exchange Type" />
                         </SelectTrigger>
                         <SelectContent>

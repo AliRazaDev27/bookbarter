@@ -103,7 +103,7 @@ export function Messages() {
             <SheetTrigger ref={triggerRef}>
                 <MdMessage className="text-2xl" />
             </SheetTrigger>
-            <SheetContent id="message-sheet" className="overflow-y-auto border-2 w-full h-full px-2 py-1 bg-gray-100">
+            <SheetContent id="message-sheet" className="overflow-y-auto border-2 w-full h-full px-2 py-1 bg-green-200">
                 {!contactId &&
                     <section className="w-full flex flex-col gap-4 py-2">
                         <SheetHeader>
